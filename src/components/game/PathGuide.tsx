@@ -1,3 +1,4 @@
+import "@react-three/fiber";
 import { useMemo } from "react";
 import { cellToWorld, routeToGoal, type World } from "@/game/maze";
 import { useScenePalette } from "@/game/scenePalette";
