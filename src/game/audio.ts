@@ -1,4 +1,4 @@
-import catchSound from "@/assets/horror_scream.mp3.asset.json";
+import catchSound from "@/assets/horror_scream.mp3?url";
 
 let ctx: AudioContext | null = null;
 let droneGain: GainNode | null = null;
@@ -163,7 +163,7 @@ export function threatPulse(distance: number, chasing: boolean) {
 /** Cri d'horreur joué dès qu'un Rôdeur attrape le joueur. */
 export function playCatchSound() {
   if (typeof window === "undefined") return;
-  const audio = new Audio(catchSound.url);
+  const audio = new Audio(catchSound);
   audio.volume = 1;
   audio.muted = muted;
   captures.add(audio);

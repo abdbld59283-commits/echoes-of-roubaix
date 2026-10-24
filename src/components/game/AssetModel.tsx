@@ -2,15 +2,15 @@ import { useGLTF } from "@react-three/drei";
 import { useMemo } from "react";
 import * as THREE from "three";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
-import pistol from "@/assets/models/pistol.glb.asset.json";
-import aela from "@/assets/models/aela.glb.asset.json";
-import narek from "@/assets/models/narek.glb.asset.json";
-import sila from "@/assets/models/sila.glb.asset.json";
-import tent from "@/assets/models/tent.glb.asset.json";
-import bedroll from "@/assets/models/bedroll.glb.asset.json";
-import crate from "@/assets/models/crate.glb.asset.json";
-import house from "@/assets/models/house.glb.asset.json";
-import tree from "@/assets/models/tree.glb.asset.json";
+import pistol from "@/assets/models/pistol.glb?url";
+import aela from "@/assets/models/aela.glb?url";
+import narek from "@/assets/models/narek.glb?url";
+import sila from "@/assets/models/sila.glb?url";
+import tent from "@/assets/models/tent.glb?url";
+import bedroll from "@/assets/models/bedroll.glb?url";
+import crate from "@/assets/models/crate.glb?url";
+import house from "@/assets/models/house.glb?url";
+import tree from "@/assets/models/tree.glb?url";
 
 export const MODELS = { pistol, aela, narek, sila, tent, bedroll, crate, house, tree };
 export function AssetModel({ model, height = 1.8, ...props }: {
