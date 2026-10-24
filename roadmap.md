@@ -1,3 +1,10 @@
+# Améliorations du document
+- [ ] Retirer les aides de quête 2 et guider la recherche des silex.
+- [ ] Ajouter collecte active, interactions et défense des compagnons.
+- [ ] Ajouter arrivée dans les Backrooms et améliorer la découverte de Roubaix.
+- [ ] Améliorer matériaux, lumière, neige, végétation et effets de tirs.
+- [ ] Vérifier règles, cinématiques et interactions en jeu.
+
 # Armes, camp et Roubaix
 # Modernisation Roubaix Echoes
 - [x] Moderniser accueil, transitions, chargement et identité industrielle.
