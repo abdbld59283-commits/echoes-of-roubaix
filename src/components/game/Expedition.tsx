@@ -10,18 +10,22 @@ import { shootTarget, type Target } from "@/game/combat";
 import { useScenePalette } from "@/game/scenePalette";
 import type { AttackView } from "@/game/threat";
 import { SURVIVORS } from "@/game/survivors";
+import { nearbyResource } from '@/game/assistance';
 
 interface TeamProps {
   world: World; playerPos: THREE.Vector3; active: boolean; following: boolean;
   targets: React.RefObject<Map<string, Target>>; attack: React.RefObject<AttackView | null>;
   allies: React.RefObject<Map<number, THREE.Vector3>>;
   missionPoints: [number, number, number][];
+  resources: React.RefObject<Map<string, { x: number; z: number }>>;
   allyHits: React.RefObject<Map<number, () => void>>;
   supplies: React.RefObject<Map<number, { x: number; z: number }>>;
   onDown: () => void;
 }
 function Companion({ person, ...props }: TeamProps & { person: number }) {
-  const { world, playerPos, active, following, targets, attack, allies, missionPoints, allyHits, supplies, onDown } = props;
+  const { world, playerPos, active, following, targets, attack, allies, resources, allyHits, supplies, onDown } = props;
+  const [animation, setAnimation] = useState('idle');
+  const lastAnimation = useRef('idle');
   const [armed, setArmed] = useState(person % 3 === 0);
   const armedRef = useRef(armed);
   const [down, setDown] = useState(false);
@@ -58,12 +62,12 @@ function Companion({ person, ...props }: TeamProps & { person: number }) {
       if (routing.current <= 0) {
         routing.current = 1.5;
         destination.copy(playerPos);
-        const missionPoint = person === 4 ? missionPoints[0] : person === 5 ? missionPoints[1] : undefined;
+        const resource = nearbyResource(resources.current.values(), playerPos, p);
         // Unarmed survivors go pick up the nearest weapon lying in the snow.
         let weapon: { x: number; z: number } | undefined, best = 30;
         if (!armedRef.current) for (const w of supplies.current.values()) { const d = Math.hypot(w.x - p.x, w.z - p.z); if (d < best) { best = d; weapon = w; } }
         if (weapon) destination.set(weapon.x, 0, weapon.z);
-        else if (missionPoint) destination.set(missionPoint[0], 0, missionPoint[2]);
+        else if (resource) destination.set(resource.x, 0, resource.z);
         else {
           const angle = person * 2.4, radius = 4 + Math.floor(person / 6) * 2;
           const x = playerPos.x + Math.cos(angle) * radius, z = playerPos.z + Math.sin(angle) * radius;
@@ -100,14 +104,17 @@ function Companion({ person, ...props }: TeamProps & { person: number }) {
       }
     }
     group.position.copy(p);
-    if (moving) { group.lookAt(playerPos.x, 0, playerPos.z); group.position.y = Math.abs(Math.sin(clock.elapsedTime * 10 + person)) * 0.09; }
+    if (moving) group.lookAt(destination.x, 0, destination.z);
+    const resource = nearbyResource(resources.current.values(), playerPos, p);
+    const nextAnimation = pulse.current > 0 ? 'holding-right-shoot' : resource && Math.hypot(resource.x - p.x, resource.z - p.z) < 2.5 ? 'pick-up' : moving ? 'sprint' : armedRef.current ? 'holding-right' : 'idle';
+    if (lastAnimation.current !== nextAnimation) { lastAnimation.current = nextAnimation; setAnimation(nextAnimation); }
     pulse.current -= dt; hurt.current -= dt;
     group.scale.setScalar(hurt.current > 0 ? 0.92 : 1);
     if (flash.current) flash.current.visible = pulse.current > 0;
   });
   if (down) return null;
   return <group ref={root} position={[position.current.x, 0, position.current.z]}>
-    <Survivor person={person % 3} position={[0, 0, 0]} />
+    <Survivor person={person % 3} position={[0, 0, 0]} animation={animation} />
     {person < 3 && <Html position={[0, 2.15, 0]} center distanceFactor={12} zIndexRange={[9, 0]} style={{ pointerEvents: "none" }}><span className="camp-name">{SURVIVORS[person]?.name}</span></Html>}
     {armed && <AssetModel model="pistol" height={0.24} position={[0.35, 1.15, 0.22]} />}
     {palette && <mesh ref={flash} visible={false} position={[0.35, 1.2, 0.5]}><sphereGeometry args={[0.07, 4, 4]} /><meshBasicMaterial color={palette.sun} /></mesh>}

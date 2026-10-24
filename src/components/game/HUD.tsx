@@ -26,6 +26,7 @@ export function HUD({
   mission,
   kills,
   reinforced = false,
+  guidance = true,
 }: {
   quest: Quest;
   index: number;
@@ -36,6 +37,7 @@ export function HUD({
   mission: string | null;
   kills: number;
   reinforced?: boolean;
+  guidance?: boolean;
 }) {
   return (
     <div className="pointer-events-none fixed inset-0 z-10 select-none font-mono">
@@ -45,8 +47,7 @@ export function HUD({
           <p className="mt-3 text-[10px] uppercase text-hud/70">
             Quête {index + 1} / 10
           </p>
-          <p className="mt-1 text-xs sm:text-sm text-hud">{quest.objective}</p>
-          <p className="mt-2 text-[11px] text-hud/60">Distance : {distance.toFixed(0)} m</p>
+          {guidance && <><p className="mt-1 text-xs sm:text-sm text-hud">{quest.objective}</p><p className="mt-2 text-[11px] text-hud/60">Distance : {distance.toFixed(0)} m</p></>}
           {mission && <p className="mt-2 text-xs text-mustard">{mission}</p>}
         </div>
 
