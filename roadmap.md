@@ -1,4 +1,5 @@
 # Améliorations du document
+- [x] Expliquer comment arrêter la partie : Échap libère la souris ; recharger revient à l’accueil.
 - [ ] Retirer les aides de quête 2 et guider la recherche des silex.
 - [ ] Ajouter collecte active, interactions et défense des compagnons.
 - [ ] Ajouter arrivée dans les Backrooms et améliorer la découverte de Roubaix.
