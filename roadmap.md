@@ -1,4 +1,5 @@
 # Améliorations du document
+- [ ] Restaurer la lumière d’origine des Backrooms, corriger les murs intermittents et prolonger l’introduction à 20 secondes.
 - [x] Expliquer comment arrêter la partie : Échap libère la souris ; recharger revient à l’accueil.
 - [x] Retirer les aides de quête 2 et guider la recherche des silex.
 - [x] Ajouter collecte active, interactions et défense des compagnons.

@@ -7,6 +7,7 @@ import { useScenePalette } from '@/game/scenePalette';
 import { AssetModel } from './AssetModel';
 import { Backrooms } from './Backrooms';
 import { asphaltTexture } from '@/game/textures';
+import { INTRO_DURATION } from '@/game/assistance';
 
 /** One camera owner: ordinary street, noclip fall, recovery, hands, then play. */
 export function Introduction({ world, onFinish }: { world: World; onFinish: () => void }) {
@@ -22,7 +23,7 @@ export function Introduction({ world, onFinish }: { world: World; onFinish: () =
     if (done.current) return;
     if (started.current === null) started.current = performance.now();
     elapsed.current = (performance.now() - started.current) / 1000;
-    const t = elapsed.current;
+    const t = elapsed.current * 11 / INTRO_DURATION;
     camera.rotation.order = 'YXZ';
     if (t < 4) {
       camera.position.set(spawn.x, 41.7 + Math.sin(t * 7) * 0.025, spawn.z + 5 - t * 1.2);
@@ -43,13 +44,13 @@ export function Introduction({ world, onFinish }: { world: World; onFinish: () =
       hands.current.position.copy(camera.position); hands.current.quaternion.copy(camera.quaternion);
       hands.current.translateY(-1.35); hands.current.translateZ(-0.42);
     }
-    if (t >= 11) { done.current = true; onFinish(); }
+    if (elapsed.current >= INTRO_DURATION) { done.current = true; onFinish(); }
   });
   if (!palette) return null;
   return <>
     {!outside && <Backrooms world={world} playerPos={playerPos.set(spawn.x, 0, spawn.z)} />}
     {outside && <><color attach="background" args={[palette.sky]} /><fog attach="fog" args={[palette.sky, 70, 200]} /><hemisphereLight args={[palette.sky, palette.stone, 2]} /><directionalLight position={[spawn.x - 10, 65, spawn.z + 10]} intensity={3} color={palette.sun} /></>}
-    <Environment resolution={64}><Lightformer intensity={1.5} position={[0, 5, 0]} scale={[10, 10, 1]} /></Environment>
+    {outside && <Environment resolution={64}><Lightformer intensity={1.5} position={[0, 5, 0]} scale={[10, 10, 1]} /></Environment>}
     <group ref={street} position={[spawn.x, 40, spawn.z]}>
       <mesh rotation-x={-Math.PI / 2} receiveShadow><planeGeometry args={[90, 90]} /><meshStandardMaterial map={paving} color={palette.stone} roughness={0.75} /></mesh>
       {[-1, 1].map(side => <group key={side}>{[-14, -5, 4, 13].map(z => <AssetModel key={z} model="house" height={7} position={[side * 12, 0, z]} rotation={[0, side * Math.PI / 2, 0]} />)}<AssetModel model="tree" height={5} position={[side * 7, 0, -8]} /></group>)}

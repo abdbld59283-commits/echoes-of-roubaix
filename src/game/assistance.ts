@@ -4,6 +4,7 @@ import { routeToGoal, worldToCell } from './maze';
 
 export interface Resource { x: number; z: number }
 export const COMPANION_SCAN_RADIUS = 22;
+export const INTRO_DURATION = 20;
 export function questAssistance(quest: Pick<Quest, 'id' | 'world'>) {
   return { objective: quest.id !== 2, flint: quest.world === 'tundra' };
 }

@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { nearbyResource, questAssistance, openingPhase, guidanceRoute } from './assistance';
+import { nearbyResource, questAssistance, openingPhase, guidanceRoute, INTRO_DURATION } from './assistance';
 import { buildWorld, cellToWorld } from './maze';
 import { silexCells } from './expedition';
 
 describe('requested quest and companion rules', () => {
+  it('the opening animation is longer than its former eleven seconds', () => {
+    expect(INTRO_DURATION).toBeGreaterThan(11);
+  });
   it('quest 2 has no objective or flint assistance', () => {
     expect(questAssistance({ id: 2, world: 'backrooms' })).toEqual({ objective: false, flint: false });
   });

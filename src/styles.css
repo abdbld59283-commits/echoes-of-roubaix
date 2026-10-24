@@ -137,11 +137,14 @@
   --scene-snow: #edf7ff;
   --scene-ice: #a9d9ed;
   --scene-storm: #b1cbd8;
-  --scene-wall: #dec778;
-  --scene-carpet: #b19b5c;
-  --scene-ceiling: #ece3c2;
-  --scene-liminal: #2e291d;
-  --scene-lamp: #fff2c2;
+  --scene-wall: #d8bc61;
+  --scene-carpet: #a89042;
+  --scene-ceiling: #c8bd94;
+  --scene-liminal: #0d0b05;
+  --scene-lamp: #ffdf9b;
+  --scene-liminal-fog: #3a3014;
+  --scene-liminal-ambient: #e8d08a;
+  --scene-liminal-flicker: #fff1bb;
   --scene-track: #9bbed0;
   --mustard: oklch(0.78 0.11 58);
   --hud: oklch(0.93 0.02 95);
@@ -250,7 +253,7 @@ body { font-family: var(--font-mono); }
 .game-shell[data-phase="victory"] .camp-name { display: none; }
 .flint-compass { position: fixed; top: 185px; right: 22px; color: var(--ice); background: color-mix(in oklab, var(--game-dark) 70%, transparent); font: 12px var(--font-mono); padding: 8px 12px; border-bottom: 2px solid var(--ice); }
 .flint-compass:has(span:empty) { display: none; }
-.intro-glitch { animation: intro-noclip 11s linear both; background: repeating-linear-gradient(0deg, transparent 0 4px, color-mix(in oklab, var(--ice) 22%, transparent) 4px 5px); }
+.intro-glitch { animation: intro-noclip 20s linear both; background: repeating-linear-gradient(0deg, transparent 0 4px, color-mix(in oklab, var(--ice) 22%, transparent) 4px 5px); }
 @keyframes intro-noclip { 0%, 34%, 60%, 100% { opacity: 0; transform: translateX(0); } 37%, 40%, 45%, 48% { opacity: 0.9; transform: translateX(5px); } 38%, 42%, 46%, 50% { opacity: 0.2; transform: translateX(-8px); } }
 .echo-backdrop { position: absolute; inset: 0; }
 .echo-backdrop img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
