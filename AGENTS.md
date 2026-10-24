@@ -21,3 +21,6 @@
 - Brigand fire, survivor hit points and weapon pickups share the allies/allyHits/supplies registries owned by the game; one source keeps team losses and pickups consistent.
 - Keep presentation overlays in GameExperience and feed touch controls into the existing movement and weapon actions; presentation must not duplicate combat rules.
 - Route synthesized audio through one master gain and mute capture elements separately; one audio toggle must silence both paths.
+- Keep guidance rules and companion resource selection in the shared assistance module and keep uncollected pickups in a game-owned registry; this prevents stale companion destinations and duplicate collection.
+- Run the Backrooms introduction as its own camera phase before play and animate imported characters from their embedded clips; this prevents competing cameras and keeps cinematics independent of combat timers.
+- Use a bounded local snow mesh for footprint deformation and pooled weapon impact particles; this limits geometry and allocations on mobile GPUs.
