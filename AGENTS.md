@@ -13,7 +13,7 @@
 - Run the attack encounter before life loss using shared camera/monster refs; this keeps the actual attacker visible until respawn or game over.
 - Use browser Web Audio for proximity pulses and the uploaded capture asset for encounters; keep capture playback independent from synthesized ambience.
 - Register living monster objects and hit callbacks in a shared combat registry; eliminating one removes its threat and makes hitscan target only living enemies.
-- Store imported CC0 models as asset pointers with textures embedded in their GLBs; self-contained files prevent missing relative texture requests.
+- Store imported CC0 models as real files under src/assets with `?url` imports and textures embedded in their GLBs; self-contained files prevent missing relative texture requests and work without the asset-pointer pipeline.
 - Keep survivor mission state in the game owner and scene interactions in dedicated camp components; DOM dialogues and scene pickups share one progress source.
 - Run the arrival as a separate camera phase before the final quest starts; the countdown and combat must not run during the cinematic.
 - Use the shared maze route finder for guidance and reachability tests; visible guides must match walkable collision cells.
