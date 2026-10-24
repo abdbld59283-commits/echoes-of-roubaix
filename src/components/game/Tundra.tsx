@@ -1,6 +1,10 @@
 import { useFrame } from "@react-three/fiber";
 import { useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { Environment, Lightformer } from '@react-three/drei';
+import { useScenePalette } from '@/game/scenePalette';
+import { SnowTrail } from './SnowTrail';
+import { AssetModel } from './AssetModel';
 
 import { CELL, at, cellToWorld, worldToCell, type World } from "@/game/maze";
 import { iceTexture, snowTexture } from "@/game/textures";
@@ -8,6 +12,7 @@ import { iceTexture, snowTexture } from "@/game/textures";
 const DUMMY = new THREE.Object3D();
 
 function Blizzard({ playerPos, storm }: { playerPos: THREE.Vector3; storm: boolean }) {
+  const palette = useScenePalette();
   const count = storm ? 4000 : 1800;
   const points = useRef<THREE.Points>(null);
   const positions = useMemo(() => {
@@ -39,13 +44,14 @@ function Blizzard({ playerPos, storm }: { playerPos: THREE.Vector3; storm: boole
     p.position.set(playerPos.x, 0, playerPos.z);
   });
 
+  if (!palette) return null;
   return (
     <points ref={points}>
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
       <pointsMaterial
-        color="#ffffff"
+        color={palette.snow}
         size={storm ? 0.16 : 0.1}
         transparent
         opacity={storm ? 0.95 : 0.75}
@@ -68,6 +74,8 @@ export function Tundra({
   const snow = useMemo(() => snowTexture(50), []);
   const ice = useMemo(() => iceTexture(2), []);
   const sun = useRef<THREE.DirectionalLight>(null);
+  const foliage = useRef<THREE.Group>(null);
+  const palette = useScenePalette();
 
   const cells = useMemo(() => {
     const list: [number, number][] = [];
@@ -108,25 +116,28 @@ export function Tundra({
 
   useFrame((state) => {
     updateIce();
+    if (foliage.current) foliage.current.rotation.z = Math.sin(state.clock.elapsedTime * 1.8) * 0.015;
     if (sun.current && storm) {
       sun.current.intensity = 1.0 + Math.sin(state.clock.elapsedTime * 9) * 0.25;
     }
   });
 
   const extent = world.size * CELL;
-  const sky = storm ? "#8e9aa8" : "#a9c0d8";
+  if (!palette) return null;
+  const sky = storm ? palette.storm : palette.sky;
 
   return (
     <>
       <color attach="background" args={[sky]} />
-      <fogExp2 attach="fog" args={[sky, storm ? 0.055 : 0.025]} />
-      <hemisphereLight args={["#cfe2f5", "#7d8ea3", storm ? 1.1 : 1.4]} />
-      <ambientLight intensity={0.8} color="#bcd2e8" />
+      <fogExp2 attach="fog" args={[sky, storm ? 0.027 : 0.009]} />
+      <hemisphereLight args={[palette.snow, palette.ice, storm ? 1.1 : 1.4]} />
+      <ambientLight intensity={0.65} color={palette.ice} />
+      <Environment resolution={64}><Lightformer intensity={1.5} position={[0, 12, 0]} scale={[30, 30, 1]} /><Lightformer intensity={1} color={palette.sky} position={[15, 6, 0]} rotation-y={-Math.PI / 2} scale={[20, 15, 1]} /></Environment>
       <directionalLight
         ref={sun}
         position={[18, 24, -12]}
         intensity={storm ? 0.6 : 1.3}
-        color="#ffe9d0"
+        color={palette.sun}
         castShadow
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
@@ -138,7 +149,7 @@ export function Tundra({
 
       <mesh rotation-x={-Math.PI / 2} receiveShadow>
         <planeGeometry args={[extent * 1.4, extent * 1.4]} />
-        <meshStandardMaterial map={snow} roughness={0.95} color="#e8f1fa" />
+        <meshStandardMaterial map={snow} bumpMap={snow} bumpScale={0.08} roughness={0.88} color={palette.snow} />
       </mesh>
 
       <instancedMesh
@@ -148,10 +159,12 @@ export function Tundra({
         receiveShadow
       >
         <dodecahedronGeometry args={[CELL * 0.62, 0]} />
-        <meshStandardMaterial map={ice} roughness={0.6} color="#cfe0f0" />
+        <meshPhysicalMaterial map={ice} bumpMap={ice} bumpScale={0.06} roughness={0.32} clearcoat={0.4} color={palette.ice} />
       </instancedMesh>
 
       <Blizzard playerPos={playerPos} storm={storm} />
+      <SnowTrail playerPos={playerPos} />
+      <group ref={foliage}>{[world.spawn, ...(world.fireCells.slice(0, 3))].map((cell, i) => { const p = cellToWorld(world.size, cell.x, cell.z); return <AssetModel key={i} model="tree" height={3.5} position={[p.x + 2, 0, p.z + 2]} />; })}</group>
     </>
   );
 }

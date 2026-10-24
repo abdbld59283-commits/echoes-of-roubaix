@@ -15,7 +15,7 @@ export function Objective({
   onReach: () => boolean | void;
   playerPos: THREE.Vector3;
   visible?: boolean;
-  allies?: React.RefObject<Map<number, THREE.Vector3>>;
+  allies?: React.RefObject<Map<number, THREE.Vector3>> | undefined;
 }) {
   const group = useRef<THREE.Group>(null);
   const done = useRef(false);

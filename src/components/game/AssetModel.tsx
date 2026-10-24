@@ -29,7 +29,7 @@ export function AssetModel({ model, height = 1.8, animation = 'idle', ...props }
   }, [scene, height]);
   const { actions } = useAnimations(animations, object);
   useEffect(() => {
-    const action = actions[animation] ?? actions.idle;
+    const action = actions[animation] ?? actions['idle'];
     action?.reset().fadeIn(0.25).play();
     return () => { action?.fadeOut(0.25); };
   }, [actions, animation]);
