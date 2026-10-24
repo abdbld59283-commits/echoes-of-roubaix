@@ -75,6 +75,7 @@ export function BackroomsGame() {
   const [hp, setHp] = useState(PLAYER_HIT_POINTS);
   const hpRef = useRef(PLAYER_HIT_POINTS);
   const [blocked, setBlocked] = useState(false);
+  const [flintDirection, setFlintDirection] = useState('');
   const onBrigandKill = useCallback(() => setBrigandsKilled(k => k + 1), []);
   const onSupply = useCallback((i: number) => {
     const reward = supplyReward(i);
@@ -281,7 +282,7 @@ export function BackroomsGame() {
             {playing && quest.world === "tundra" && world.supplyCells?.map((cell, i) => <GroundSupply key={`supply-${attempt}-${i}`} world={world} cell={cell} index={i} playerPos={playerPos} active={dialogue === null && !attacked} onPickup={onSupply} supplies={supplies} />)}
             {playing && world.brigandCells?.map((cell, i) => <Monster key={`brigand-${attempt}-${i}`} id={`brigand-${attempt}-${i}`} kind="brigand" world={world} cell={cell} speed={3.4} playerPos={playerPos} onCatch={onMonsterCatch} threats={threats} attack={attack} targets={targets} onKill={onBrigandKill} active={dialogue === null} onShootPlayer={onShootPlayer} allies={allies} allyHits={allyHits} />)}
             {playing && world.bossCell && <Monster key={`boss-${attempt}`} id={`boss-${attempt}`} kind="boss" world={world} cell={world.bossCell} speed={3.2} playerPos={playerPos} onCatch={onMonsterCatch} threats={threats} attack={attack} targets={targets} onKill={onKill} pale fires={fires} active={dialogue === null} onBoss={setBoss} />}
-            {playing && assistance.flint && silex < SILEX_REQUIRED && <FlintGuide world={world} playerPos={playerPos} resources={resources} />}
+            {playing && assistance.flint && silex < SILEX_REQUIRED && <FlintGuide world={world} playerPos={playerPos} resources={resources} onUpdate={setFlintDirection} />}
             {phase === 'intro' ? <Introduction key={`intro-${attempt}`} world={world} onFinish={finishArrival} /> : phase === "finale" || phase === "victory" ? <Finale survivors={team} onFinish={() => { document.exitPointerLock?.(); setPhase("victory"); }} /> : phase === "arrival" ? <Arrival survivors={team} onFinish={finishArrival} /> : <Player world={world} look={look} keys={keys} playerPos={playerPos} shake={shake} attack={attack} active={playing && dialogue === null} />}
             <Weapon world={world} targets={targets} active={playing && dialogue === null} attack={attack} ammo={ammo} onAmmo={setAmmoView} reinforced={reinforced} />
             {playing && mission !== null && SURVIVORS[mission]?.kind === "collect" && pickupPositions.map((position, i) => <MissionPickup key={`${attempt}-${i}`} id={`mission-${i}`} resources={resources} active={dialogue === null && !attacked} position={position} playerPos={playerPos} onCollect={onCollect} allies={following && dialogue === null && !attacked ? allies : undefined} />)}
@@ -337,6 +338,7 @@ export function BackroomsGame() {
       {playing && (
         <HUD guidance={assistance.objective} quest={quest} index={index} lives={lives} distance={distance} timeLeft={timeLeft} ammo={ammoView} kills={kills} reinforced={reinforced} mission={mission !== null ? `${SURVIVORS[mission]?.mission} · ${SURVIVORS[mission]?.kind === "hunt" ? Math.min(kills, 2) : Math.min(collected, 2)}/2${rewarded ? " · accomplie" : ""}` : null} />
       )}
+      {playing && assistance.flint && silex < SILEX_REQUIRED && flintDirection && <div className="flint-compass pointer-events-none z-30">{flintDirection}</div>}
       {playing && quest.world === "tundra" && <>
         <div className="expedition-hud"><p>ÉQUIPE · {team} SURVIVANTS · BRIGANDS {brigandsKilled}/10</p><p className="text-mustard">SILEX {Math.min(silex, SILEX_REQUIRED)}/{SILEX_REQUIRED} · SANTÉ {"■".repeat(hp)}{"□".repeat(PLAYER_HIT_POINTS - hp)}</p><ControlButton variant="ghost" size="sm" className="mt-2 border border-hud/30 bg-game-dark/70 text-hud" onClick={e => { e.stopPropagation(); setFollowing(v => !v); }}>{following ? "Tenir la position" : "Me suivre"}</ControlButton></div>
         <div className="boss-hud" aria-label="Boss des Rôdeurs"><p className="text-blood">LE PATRIARCHE · FORCE {boss.level}</p><progress value={boss.hp} max={boss.maxHp} /><p>{boss.hp <= 0 ? "Boss éliminé" : `${Math.ceil(boss.hp)}/${boss.maxHp} · Renforcement dans ${boss.next}s`}</p></div>

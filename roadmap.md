@@ -1,10 +1,10 @@
 # Améliorations du document
 - [x] Expliquer comment arrêter la partie : Échap libère la souris ; recharger revient à l’accueil.
-- [ ] Retirer les aides de quête 2 et guider la recherche des silex.
-- [ ] Ajouter collecte active, interactions et défense des compagnons.
-- [ ] Ajouter arrivée dans les Backrooms et améliorer la découverte de Roubaix.
-- [ ] Améliorer matériaux, lumière, neige, végétation et effets de tirs.
-- [ ] Vérifier règles, cinématiques et interactions en jeu.
+- [x] Retirer les aides de quête 2 et guider la recherche des silex.
+- [x] Ajouter collecte active, interactions et défense des compagnons.
+- [x] Ajouter arrivée dans les Backrooms et améliorer la découverte de Roubaix.
+- [x] Améliorer matériaux, lumière, neige, végétation et effets de tirs avec les modèles existants ; pas de nouveaux visages détaillés ni de masques amovibles.
+- [x] Vérifier 26 règles, introduction naturelle et tir ; quête 2, collecte compagnon et arrivée Roubaix vérifiées avec progression et positions instrumentées ; pas de partie complète rejouée.
 
 # Armes, camp et Roubaix
 # Modernisation Roubaix Echoes

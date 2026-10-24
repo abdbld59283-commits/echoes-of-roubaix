@@ -7,11 +7,13 @@ import * as THREE from 'three';
 
 export function Arrival({ onFinish, survivors = TEAM_SIZE }: { onFinish: () => void; survivors?: number }) {
   const elapsed = useRef(0);
+  const started = useRef<number | null>(null);
   const finished = useRef(false);
   const [revealed, setRevealed] = useState(false);
   const walkers = useRef<(THREE.Group | null)[]>([]);
   useFrame(({ camera }, rawDelta) => {
-    elapsed.current += Math.min(rawDelta, 0.05);
+    if (started.current === null) started.current = performance.now();
+    elapsed.current = (performance.now() - started.current) / 1000;
     const t = elapsed.current;
     walkers.current.forEach((g, i) => { if (g) { g.position.z = 15 + Math.floor(i / 5) * 2 - Math.min(t, 4) * 1.4; g.rotation.y = t > 6 ? Math.sin(t * 0.3 + i) * 0.35 : Math.PI; } });
     if (t > 5 && !revealed) setRevealed(true);
