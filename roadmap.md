@@ -1,4 +1,7 @@
 # Améliorations du document
+- [ ] Harmoniser le rendu réaliste stylisé sur les trois mondes, les personnages et les armes, sans éclaircir les Backrooms.
+- [ ] Améliorer aussi les animations de déplacement, combat et cinématiques.
+- [ ] Vérifier les trois mondes et les animations dans le navigateur.
 - [x] Restaurer la lumière d’origine des Backrooms, initialiser les murs après chargement des couleurs et prolonger l’introduction à 20 secondes ; entrée en jeu vérifiée, murs visibles, 8 tests réussis et aucune erreur navigateur.
 - [x] Expliquer comment arrêter la partie : Échap libère la souris ; recharger revient à l’accueil.
 - [x] Retirer les aides de quête 2 et guider la recherche des silex.
