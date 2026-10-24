@@ -1,20 +1,27 @@
 import { Environment, Lightformer } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
-import { useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { cellToWorld, spawnYaw, type World } from '@/game/maze';
 import { useScenePalette } from '@/game/scenePalette';
 import { AssetModel } from './AssetModel';
+import { Backrooms } from './Backrooms';
+import { asphaltTexture } from '@/game/textures';
 
 /** One camera owner: ordinary street, noclip fall, recovery, hands, then play. */
 export function Introduction({ world, onFinish }: { world: World; onFinish: () => void }) {
   const elapsed = useRef(0), done = useRef(false), street = useRef<THREE.Group>(null), hands = useRef<THREE.Group>(null);
   const [outside, setOutside] = useState(true);
   const palette = useScenePalette();
+  const started = useRef<number | null>(null);
+  const paving = useMemo(() => asphaltTexture(12), []);
+  const playerPos = useMemo(() => new THREE.Vector3(), []);
+  useEffect(() => () => paving.dispose(), [paving]);
   const spawn = cellToWorld(world.size, world.spawn.x, world.spawn.z), yaw = spawnYaw(world);
   useFrame(({ camera }, raw) => {
     if (done.current) return;
-    elapsed.current += Math.min(raw, 0.05);
+    if (started.current === null) started.current = performance.now();
+    elapsed.current = (performance.now() - started.current) / 1000;
     const t = elapsed.current;
     camera.rotation.order = 'YXZ';
     if (t < 4) {
@@ -40,10 +47,11 @@ export function Introduction({ world, onFinish }: { world: World; onFinish: () =
   });
   if (!palette) return null;
   return <>
+    {!outside && <Backrooms world={world} playerPos={playerPos.set(spawn.x, 0, spawn.z)} />}
     {outside && <><color attach="background" args={[palette.sky]} /><fog attach="fog" args={[palette.sky, 70, 200]} /><hemisphereLight args={[palette.sky, palette.stone, 2]} /><directionalLight position={[spawn.x - 10, 65, spawn.z + 10]} intensity={3} color={palette.sun} /></>}
     <Environment resolution={64}><Lightformer intensity={1.5} position={[0, 5, 0]} scale={[10, 10, 1]} /></Environment>
     <group ref={street} position={[spawn.x, 40, spawn.z]}>
-      <mesh rotation-x={-Math.PI / 2} receiveShadow><planeGeometry args={[90, 90]} /><meshStandardMaterial color={palette.stone} roughness={0.75} /></mesh>
+      <mesh rotation-x={-Math.PI / 2} receiveShadow><planeGeometry args={[90, 90]} /><meshStandardMaterial map={paving} color={palette.stone} roughness={0.75} /></mesh>
       {[-1, 1].map(side => <group key={side}>{[-14, -5, 4, 13].map(z => <AssetModel key={z} model="house" height={7} position={[side * 12, 0, z]} rotation={[0, side * Math.PI / 2, 0]} />)}<AssetModel model="tree" height={5} position={[side * 7, 0, -8]} /></group>)}
     </group>
     <group ref={hands} visible={false}><AssetModel model="aela" height={1.75} animation="holding-both" rotation={[0, Math.PI, 0]} /></group>

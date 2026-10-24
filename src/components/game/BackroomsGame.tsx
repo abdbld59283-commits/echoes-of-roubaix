@@ -266,7 +266,7 @@ export function BackroomsGame() {
       {phase !== "title" && (
         <Canvas shadows dpr={[1, 1.5]} camera={{ fov: 76, near: 0.1, far: 360 }}>
           <Suspense fallback={null}>
-            {quest.world === "backrooms" ? (
+            {phase === 'intro' ? null : quest.world === "backrooms" ? (
               <Backrooms world={world} playerPos={playerPos} />
             ) : quest.world === "tundra" ? (
               <Tundra world={world} playerPos={playerPos} storm={quest.special || index >= 7} />
