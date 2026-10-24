@@ -23,4 +23,5 @@
 - Route synthesized audio through one master gain and mute capture elements separately; one audio toggle must silence both paths.
 - Keep guidance rules and companion resource selection in the shared assistance module and keep uncollected pickups in a game-owned registry; this prevents stale companion destinations and duplicate collection.
 - Run the Backrooms introduction as its own camera phase before play and animate imported characters from their embedded clips; this prevents competing cameras and keeps cinematics independent of combat timers.
+- Initialize instanced Backrooms walls after the scene palette is available and recompute their bounds after matrix updates; this prevents identity-position walls and stale camera culling on initial mount.
 - Use a bounded local snow mesh for footprint deformation and pooled weapon impact particles; this limits geometry and allocations on mobile GPUs.
