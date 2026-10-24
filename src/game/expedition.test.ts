@@ -1,4 +1,4 @@
-import { describe, it } from "node:test";
+import { describe, it } from "vitest";
 import { strictEqual, ok } from "node:assert";
 import { buildWorld, routeToGoal } from "./maze";
 import { TEAM_SIZE, BRIGAND_COUNT, bossPower, supplyReward } from "./expedition";

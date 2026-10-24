@@ -1,4 +1,4 @@
-import { describe, it as test } from "node:test";
+import { describe, it as test } from "vitest";
 import { deepStrictEqual, strictEqual } from "node:assert";
 import { QUESTS } from "./quests";
 import { closestThreat, monsterThreat } from "./threat";
