@@ -9,7 +9,7 @@ const DURATION = 16;
 export function Finale({ survivors = TEAM_SIZE, onFinish }: { survivors?: number; onFinish: () => void }) {
   const elapsed = useRef(0), done = useRef(false);
   const walkers = useRef<(THREE.Group | null)[]>([]);
-  const count = Math.max(3, survivors);
+  const count = Math.max(0, survivors);
   useFrame(({ camera, clock }, raw) => {
     elapsed.current += Math.min(raw, 0.05);
     const t = elapsed.current;
@@ -34,5 +34,5 @@ export function Finale({ survivors = TEAM_SIZE, onFinish }: { survivors?: number
     }
     if (t >= DURATION && !done.current) { done.current = true; onFinish(); }
   });
-  return <>{Array.from({ length: count }, (_, i) => <group key={i} ref={el => { walkers.current[i] = el; }} position={[0, 0, 40]}><Survivor person={i % 3} position={[0, 0, 0]} /></group>)}</>;
+  return <>{Array.from({ length: count }, (_, i) => <group key={i} ref={el => { walkers.current[i] = el; }} position={[0, 0, 40]}><Survivor person={i % 3} position={[0, 0, 0]} animation="walk" discover /></group>)}</>;
 }

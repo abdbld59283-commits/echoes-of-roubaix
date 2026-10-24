@@ -129,11 +129,20 @@
   --scene-sky: #a5d9ef;
   --scene-stone: #c5bfae;
   --scene-water: #4fa8ba;
-  --scene-leaf: #4c8058;
+  --scene-leaf: #54ad65;
   --scene-sun: #fff0b5;
   --scene-metal: #343b40;
   --scene-signal: #82dfef;
   --scene-roof: #56616c;
+  --scene-snow: #edf7ff;
+  --scene-ice: #a9d9ed;
+  --scene-storm: #b1cbd8;
+  --scene-wall: #dec778;
+  --scene-carpet: #b19b5c;
+  --scene-ceiling: #ece3c2;
+  --scene-liminal: #2e291d;
+  --scene-lamp: #fff2c2;
+  --scene-track: #9bbed0;
   --mustard: oklch(0.78 0.11 58);
   --hud: oklch(0.93 0.02 95);
   --blood: oklch(0.55 0.22 27);
@@ -239,6 +248,10 @@ body { font-family: var(--font-mono); }
 .game-shell { overflow: hidden; isolation: isolate; }
 .game-shell * { letter-spacing: 0; }
 .game-shell[data-phase="victory"] .camp-name { display: none; }
+.flint-compass { position: fixed; top: 185px; right: 22px; color: var(--ice); background: color-mix(in oklab, var(--game-dark) 70%, transparent); font: 12px var(--font-mono); padding: 8px 12px; border-bottom: 2px solid var(--ice); }
+.flint-compass:has(span:empty) { display: none; }
+.intro-glitch { animation: intro-noclip 11s linear both; background: repeating-linear-gradient(0deg, transparent 0 4px, color-mix(in oklab, var(--ice) 22%, transparent) 4px 5px); }
+@keyframes intro-noclip { 0%, 34%, 60%, 100% { opacity: 0; transform: translateX(0); } 37%, 40%, 45%, 48% { opacity: 0.9; transform: translateX(5px); } 38%, 42%, 46%, 50% { opacity: 0.2; transform: translateX(-8px); } }
 .echo-backdrop { position: absolute; inset: 0; }
 .echo-backdrop img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
 .echo-backdrop-shade { position: absolute; inset: 0; background: linear-gradient(180deg, color-mix(in oklab, var(--game-dark) 25%, transparent), color-mix(in oklab, var(--game-dark) 62%, transparent) 60%, var(--game-dark)); }
@@ -296,6 +309,7 @@ body { font-family: var(--font-mono); }
   .expedition-hud button { font-size: 10px; }
 }
 @media (max-width: 600px) {
+  .flint-compass { top: 180px; right: 14px; font-size: 10px; }
   .echo-title { font-size: 76px; }
   .echo-eyebrow { margin-bottom: 24px; }
   .echo-panel { padding-inline: 20px; }
@@ -319,6 +333,7 @@ body { font-family: var(--font-mono); }
   .echo-panel { padding-block: 30px; }
 }
 @media (prefers-reduced-motion: reduce) {
+  .intro-glitch { display: none; }
   .echo-title, .echo-panel-content, .echo-radar::before, .echo-radar::after, .echo-feedback span { animation: none; }
   .echo-feedback { display: none; }
   .echo-transition { animation-duration: 0.01s; }
