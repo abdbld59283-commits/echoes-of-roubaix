@@ -12,7 +12,7 @@ import crate from "@/assets/models/crate.glb?url";
 import house from "@/assets/models/house.glb?url";
 import tree from "@/assets/models/tree.glb?url";
 
-export const MODELS = { pistol, aela, narek, sila, tent, bedroll, crate, house, tree };
+export const MODELS = { pistol: { url: pistol }, aela: { url: aela }, narek: { url: narek }, sila: { url: sila }, tent: { url: tent }, bedroll: { url: bedroll }, crate: { url: crate }, house: { url: house }, tree: { url: tree } };
 export function AssetModel({ model, height = 1.8, ...props }: {
   model: keyof typeof MODELS; height?: number; position?: [number, number, number]; rotation?: [number, number, number];
 }) {
