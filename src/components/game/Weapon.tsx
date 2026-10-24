@@ -17,6 +17,8 @@ export function Weapon({ world, targets, active, attack, ammo, onAmmo, reinforce
   const group = useRef<THREE.Group>(null);
   const muzzle = useRef<THREE.Mesh>(null);
   const recoil = useRef(0);
+  const sparks = useRef<THREE.Points>(null), sparkTime = useRef(0);
+  const sparkPositions = useRef(new Float32Array(36));
   const cooldown = useRef(0);
   const reloadTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const palette = useScenePalette();
@@ -36,7 +38,7 @@ export function Weapon({ world, targets, active, attack, ammo, onAmmo, reinforce
       ammo.current.rounds--; onAmmo({ ...ammo.current });
       cooldown.current = performance.now() + 260; recoil.current = 1;
       gunshot();
-      shootTarget(world, camera.position, camera.getWorldDirection(new THREE.Vector3()), targets.current.values(), reinforced ? 2 : 1);
+      shootTarget(world, camera.position, camera.getWorldDirection(new THREE.Vector3()), targets.current.values(), reinforced ? 2 : 1, point => { if (sparks.current) sparks.current.position.copy(point); sparkPositions.current.fill(0); sparkTime.current = 0.3; });
     };
     const click = (e: MouseEvent) => { if (e.button === 0 && document.pointerLockElement) fire(); };
     const key = (e: KeyboardEvent) => { if (e.repeat) return; if (e.code === "KeyR") reload(); if (e.code === "Space") fire(); };
@@ -52,9 +54,17 @@ export function Weapon({ world, targets, active, attack, ammo, onAmmo, reinforce
     group.current.quaternion.copy(camera.quaternion);
     group.current.translateX(0.3); group.current.translateY(ammo.current.reloading ? -0.65 : -0.34); group.current.translateZ(-0.65 + recoil.current * 0.1);
     if (muzzle.current) muzzle.current.visible = recoil.current > 0.65;
+    const dt = Math.min(delta, 0.05);
+    sparkTime.current -= dt;
+    if (sparks.current) {
+      sparks.current.visible = active && sparkTime.current > 0;
+      const attr = sparks.current.geometry.getAttribute('position');
+      for (let i = 0; i < 12; i++) { attr.setXYZ(i, attr.getX(i) + Math.cos(i * 2.4) * dt * 2, attr.getY(i) + Math.sin(i * 1.9) * dt * 2, attr.getZ(i) + Math.cos(i * 1.3) * dt * 2); }
+      attr.needsUpdate = true;
+    }
   });
-  return <group ref={group}>
+  return <><group ref={group}>
     <AssetModel model="pistol" height={0.3} rotation={[0, Math.PI, 0]} position={[0, -0.08, 0]} />
     {palette && <mesh ref={muzzle} position={[0, 0.03, -0.33]} visible={false}><sphereGeometry args={[0.065, 6, 6]} /><meshBasicMaterial color={palette.sun} /></mesh>}
-  </group>;
+  </group>{palette && <points ref={sparks} visible={false} frustumCulled={false}><bufferGeometry><bufferAttribute attach="attributes-position" args={[sparkPositions.current, 3]} /></bufferGeometry><pointsMaterial color={palette.sun} size={0.06} transparent opacity={0.9} depthWrite={false} blending={THREE.AdditiveBlending} /></points>}</>;
 }

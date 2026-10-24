@@ -17,8 +17,10 @@ function finish(c: HTMLCanvasElement, repeat: number) {
 
 /** Mustard damp wallpaper with vertical stripes and stains. */
 export function wallpaperTexture(repeat = 1) {
-  const c = canvas(256);
-  const g = c.getContext("2d")!;
+  const c = canvas(512);
+  const g = c.getContext("2d");
+  if (!g) throw new Error("Canvas 2D indisponible");
+  g.scale(2, 2);
   g.fillStyle = "#c8ac52";
   g.fillRect(0, 0, 256, 256);
   for (let x = 0; x < 256; x += 16) {
@@ -42,8 +44,10 @@ export function wallpaperTexture(repeat = 1) {
 
 /** Damp mottled carpet. */
 export function carpetTexture(repeat = 24) {
-  const c = canvas(256);
-  const g = c.getContext("2d")!;
+  const c = canvas(512);
+  const g = c.getContext("2d");
+  if (!g) throw new Error("Canvas 2D indisponible");
+  g.scale(2, 2);
   g.fillStyle = "#8d7a38";
   g.fillRect(0, 0, 256, 256);
   for (let i = 0; i < 9000; i++) {
@@ -56,8 +60,10 @@ export function carpetTexture(repeat = 24) {
 
 /** Stained ceiling tiles with fluorescent panels baked in. */
 export function ceilingTexture(repeat = 20) {
-  const c = canvas(256);
-  const g = c.getContext("2d")!;
+  const c = canvas(512);
+  const g = c.getContext("2d");
+  if (!g) throw new Error("Canvas 2D indisponible");
+  g.scale(2, 2);
   g.fillStyle = "#bdb08a";
   g.fillRect(0, 0, 256, 256);
   g.strokeStyle = "rgba(60,50,30,0.45)";
@@ -72,8 +78,10 @@ export function ceilingTexture(repeat = 20) {
 
 /** Wind-blown snow crust. */
 export function snowTexture(repeat = 40) {
-  const c = canvas(256);
-  const g = c.getContext("2d")!;
+  const c = canvas(512);
+  const g = c.getContext("2d");
+  if (!g) throw new Error("Canvas 2D indisponible");
+  g.scale(2, 2);
   g.fillStyle = "#dfe8f2";
   g.fillRect(0, 0, 256, 256);
   for (let i = 0; i < 160; i++) {
@@ -94,9 +102,11 @@ export function snowTexture(repeat = 40) {
 
 /** Red brick facade — Roubaix 2026. */
 export function brickTexture(repeat = 1) {
-  const c = canvas(256);
-  const g = c.getContext("2d")!;
-  g.fillStyle = "#5e2f24";
+  const c = canvas(512);
+  const g = c.getContext("2d");
+  if (!g) throw new Error("Canvas 2D indisponible");
+  g.scale(2, 2);
+  g.fillStyle = "#c4a58f";
   g.fillRect(0, 0, 256, 256);
   const bh = 16;
   const bw = 42;
@@ -104,12 +114,12 @@ export function brickTexture(repeat = 1) {
     const off = row % 2 === 0 ? 0 : bw / 2;
     for (let x = -bw; x < 256 + bw; x += bw) {
       const v = Math.random();
-      g.fillStyle = `rgb(${105 + v * 45},${48 + v * 22},${36 + v * 16})`;
+      g.fillStyle = `rgb(${165 + v * 45},${78 + v * 36},${56 + v * 28})`;
       g.fillRect(x + off + 1, row * bh + 1, bw - 2, bh - 2);
     }
   }
   for (let i = 0; i < 30; i++) {
-    g.fillStyle = "rgba(20,12,10,0.25)";
+    g.fillStyle = "rgba(255,235,205,0.08)";
     g.fillRect(Math.random() * 256, Math.random() * 256, 4 + Math.random() * 20, 4 + Math.random() * 30);
   }
   return finish(c, repeat);
@@ -117,9 +127,11 @@ export function brickTexture(repeat = 1) {
 
 /** Wet dark asphalt. */
 export function asphaltTexture(repeat = 30) {
-  const c = canvas(256);
-  const g = c.getContext("2d")!;
-  g.fillStyle = "#1b1e24";
+  const c = canvas(512);
+  const g = c.getContext("2d");
+  if (!g) throw new Error("Canvas 2D indisponible");
+  g.scale(2, 2);
+  g.fillStyle = "#9aa7ad";
   g.fillRect(0, 0, 256, 256);
   for (let i = 0; i < 6000; i++) {
     const v = Math.random();
@@ -131,8 +143,10 @@ export function asphaltTexture(repeat = 30) {
 
 /** Cracked blue ice / rock. */
 export function iceTexture(repeat = 2) {
-  const c = canvas(256);
-  const g = c.getContext("2d")!;
+  const c = canvas(512);
+  const g = c.getContext("2d");
+  if (!g) throw new Error("Canvas 2D indisponible");
+  g.scale(2, 2);
   g.fillStyle = "#93a9c4";
   g.fillRect(0, 0, 256, 256);
   for (let i = 0; i < 26; i++) {

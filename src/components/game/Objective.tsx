@@ -7,11 +7,15 @@ export function Objective({
   color = "#7de2ff",
   onReach,
   playerPos,
+  visible = true,
+  allies,
 }: {
   position: [number, number, number];
   color?: string;
   onReach: () => boolean | void;
   playerPos: THREE.Vector3;
+  visible?: boolean;
+  allies?: React.RefObject<Map<number, THREE.Vector3>> | undefined;
 }) {
   const group = useRef<THREE.Group>(null);
   const done = useRef(false);
@@ -19,21 +23,21 @@ export function Objective({
   useFrame((state, rawDelta) => {
     const delta = Math.min(rawDelta, 0.05);
     const g = group.current;
-    if (!g) return;
-    g.rotation.y += delta * 1.2;
-    g.position.y = 1 + Math.sin(state.clock.elapsedTime * 2) * 0.18;
+    if (g) { g.rotation.y += delta * 1.2; g.position.y = 1 + Math.sin(state.clock.elapsedTime * 2) * 0.18; }
 
     if (!done.current) {
       const dx = playerPos.x - position[0];
       const dz = playerPos.z - position[2];
-      if (Math.hypot(dx, dz) < 1.6) {
+      const close = Math.hypot(dx, dz);
+      const helper = close < 6 && [...(allies?.current.values() ?? [])].some(p => Math.hypot(p.x - position[0], p.z - position[2]) < 1.6);
+      if (close < 1.6 || helper) {
         done.current = onReach() !== false;
       }
     }
   });
 
   return (
-    <group>
+    <group visible={visible}>
       <pointLight
         position={[position[0], 2.2, position[2]]}
         color={color}

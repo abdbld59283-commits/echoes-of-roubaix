@@ -1,6 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { useScenePalette } from '@/game/scenePalette';
 
 import { CELL, at, cellToWorld, type World } from "@/game/maze";
 import { carpetTexture, ceilingTexture, wallpaperTexture } from "@/game/textures";
@@ -14,6 +15,7 @@ export function Backrooms({ world, playerPos }: { world: World; playerPos: THREE
   const ceiling = useMemo(() => ceilingTexture(22), []);
   const lamp = useRef<THREE.PointLight>(null);
   const flickerLight = useRef<THREE.PointLight>(null);
+  const palette = useScenePalette();
 
   const cells = useMemo(() => {
     const list: [number, number][] = [];
@@ -36,7 +38,9 @@ export function Backrooms({ world, playerPos }: { world: World; playerPos: THREE
     });
     mesh.instanceMatrix.needsUpdate = true;
     mesh.count = cells.length;
-  }, [cells, world.size]);
+    mesh.computeBoundingBox();
+    mesh.computeBoundingSphere();
+  }, [cells, world.size, palette]);
 
   useFrame((state) => {
     const t = state.clock.elapsedTime;
@@ -52,24 +56,25 @@ export function Backrooms({ world, playerPos }: { world: World; playerPos: THREE
   });
 
   const extent = world.size * CELL;
+  if (!palette) return null;
 
   return (
     <>
-      <color attach="background" args={["#0d0b05"]} />
-      <fogExp2 attach="fog" args={["#3a3014", 0.04]} />
-      <ambientLight intensity={1.2} color="#e8d08a" />
-      <pointLight ref={lamp} color="#ffdf9b" distance={26} decay={1.5} />
-      <pointLight ref={flickerLight} color="#fff1bb" distance={12} decay={2} />
+      <color attach="background" args={[palette.liminal]} />
+      <fogExp2 attach="fog" args={[palette['liminal-fog'], 0.04]} />
+      <ambientLight intensity={1.2} color={palette['liminal-ambient']} />
+      <pointLight ref={lamp} color={palette.lamp} distance={26} decay={1.5} />
+      <pointLight ref={flickerLight} color={palette['liminal-flicker']} distance={12} decay={2} />
 
       {/* floor */}
       <mesh rotation-x={-Math.PI / 2} receiveShadow>
         <planeGeometry args={[extent, extent]} />
-        <meshStandardMaterial map={carpet} roughness={1} color="#a89042" />
+        <meshStandardMaterial map={carpet} roughness={1} color={palette.carpet} />
       </mesh>
       {/* ceiling */}
       <mesh rotation-x={Math.PI / 2} position-y={WALL_H}>
         <planeGeometry args={[extent, extent]} />
-        <meshStandardMaterial map={ceiling} roughness={1} color="#c8bd94" />
+        <meshStandardMaterial map={ceiling} roughness={1} color={palette.ceiling} />
       </mesh>
 
       <instancedMesh
@@ -77,10 +82,12 @@ export function Backrooms({ world, playerPos }: { world: World; playerPos: THREE
         args={[undefined, undefined, Math.max(cells.length, 1)]}
         castShadow
         receiveShadow
+        name="backrooms-walls"
       >
         <boxGeometry args={[CELL, WALL_H, CELL]} />
-        <meshStandardMaterial map={wallpaper} roughness={0.95} color="#d8bc61" />
+        <meshStandardMaterial map={wallpaper} roughness={0.95} color={palette.wall} />
       </instancedMesh>
+      {[world.spawn, world.goal].map((cell, i) => { const p = cellToWorld(world.size, cell.x, cell.z); return <group key={i} position={[p.x, 0, p.z]}><mesh position={[0, 0.016, 0]} rotation-x={-Math.PI / 2}><circleGeometry args={[1.5, 32]} /><meshPhysicalMaterial color={palette.carpet} roughness={0.08} metalness={0.1} clearcoat={1} transparent opacity={0.8} /></mesh><mesh position={[0, 3.14, 0]} rotation-x={Math.PI / 2}><planeGeometry args={[1.3, 0.25]} /><meshStandardMaterial color={palette.lamp} emissive={palette.lamp} emissiveIntensity={3} /></mesh></group>; })}
     </>
   );
 }

@@ -6,7 +6,7 @@ export const SHOT_RANGE = 40;
 export interface Target { object: THREE.Object3D; hit: (damage?: number) => void; kind?: "roamer" | "boss" | "brigand" }
 
 /** Hitscan checks the first living target and the grid walls in front of it. */
-export function shootTarget(world: World, origin: THREE.Vector3, direction: THREE.Vector3, targets: Iterable<Target>, damage = 1) {
+export function shootTarget(world: World, origin: THREE.Vector3, direction: THREE.Vector3, targets: Iterable<Target>, damage = 1, onImpact?: (point: THREE.Vector3) => void) {
   const ray = new THREE.Raycaster(origin, direction, 0, SHOT_RANGE);
   let best: { target: Target; distance: number } | undefined;
   for (const target of targets) {
@@ -16,8 +16,9 @@ export function shootTarget(world: World, origin: THREE.Vector3, direction: THRE
   }
   if (!best) return false;
   for (let d = 0.2; d < best.distance; d += 0.2) {
-    if (isSolid(world, origin.x + direction.x * d, origin.z + direction.z * d)) return false;
+    if (isSolid(world, origin.x + direction.x * d, origin.z + direction.z * d)) { onImpact?.(origin.clone().addScaledVector(direction, d)); return false; }
   }
   best.target.hit(damage);
+  onImpact?.(origin.clone().addScaledVector(direction, best.distance));
   return true;
 }

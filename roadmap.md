@@ -1,3 +1,12 @@
+# Améliorations du document
+- [x] Restaurer la lumière d’origine des Backrooms, initialiser les murs après chargement des couleurs et prolonger l’introduction à 20 secondes ; entrée en jeu vérifiée, murs visibles, 8 tests réussis et aucune erreur navigateur.
+- [x] Expliquer comment arrêter la partie : Échap libère la souris ; recharger revient à l’accueil.
+- [x] Retirer les aides de quête 2 et guider la recherche des silex.
+- [x] Ajouter collecte active, interactions et défense des compagnons.
+- [x] Ajouter arrivée dans les Backrooms et améliorer la découverte de Roubaix.
+- [x] Améliorer matériaux, lumière, neige, végétation et effets de tirs avec les modèles existants ; pas de nouveaux visages détaillés ni de masques amovibles.
+- [x] Vérifier 26 règles, introduction naturelle et tir ; quête 2, collecte compagnon et arrivée Roubaix vérifiées avec progression et positions instrumentées ; pas de partie complète rejouée.
+
 # Armes, camp et Roubaix
 # Modernisation Roubaix Echoes
 - [x] Moderniser accueil, transitions, chargement et identité industrielle.
