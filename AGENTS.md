@@ -25,3 +25,5 @@
 - Run the Backrooms introduction as its own camera phase before play and animate imported characters from their embedded clips; this prevents competing cameras and keeps cinematics independent of combat timers.
 - Initialize instanced Backrooms walls after the scene palette is available and recompute their bounds after matrix updates; this prevents identity-position walls and stale camera culling on initial mount.
 - Use a bounded local snow mesh for footprint deformation and pooled weapon impact particles; this limits geometry and allocations on mobile GPUs.
+- Generated surface images live in src/assets/surfaces and load through useSurfaceTexture (drei useTexture + repeat); scenes stay inside the Canvas Suspense boundary so texture loading cannot hang the app.
+- BackroomsGame exposes a dev-only window.__echoJump(questIndex) hook guarded by import.meta.env.DEV; it lets browser verification reach any world without playing through, and never ships to production.
