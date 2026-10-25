@@ -50,6 +50,7 @@ export function Monster({ world, cell, speed, playerPos, onCatch, pale, fires, i
   const fireTimer = useRef(1 + Math.random() * 2);
   const muzzle = useRef<THREE.Mesh>(null);
   const muzzleT = useRef(0);
+  const swing = useRef(Math.random() * Math.PI * 2);
   useEffect(() => {
     const registry = threats.current;
     const targetRegistry = targets.current;
@@ -134,14 +135,17 @@ export function Monster({ world, cell, speed, playerPos, onCatch, pale, fires, i
     g.position.set(pos.current.x, 0, pos.current.z);
     g.lookAt(playerPos.x, 0, playerPos.z);
 
-    // Horrific idle: flailing arms, twitching stretch, faster when close.
-    const rage = hunting ? 1 + (15 - dist) / 6 : 0.5;
-    if (armL.current) armL.current.rotation.x = Math.sin(t * 6 * rage) * 1.3 - 0.4;
-    if (armR.current) armR.current.rotation.x = Math.sin(t * 6 * rage + 2.1) * 1.3 - 0.4;
+    // Horrific gait: limbs swing with movement, twitching ramps smoothly with proximity.
+    const proximity = THREE.MathUtils.clamp((15 - dist) / 15, 0, 1);
+    const rage = hunting ? 1 + proximity : 0.5;
+    swing.current += delta * (2 + currentSpeed * 2.4) * rage;
+    const amp = 0.55 + proximity * 0.75;
+    if (armL.current) armL.current.rotation.x = Math.sin(swing.current) * amp - 0.4;
+    if (armR.current) armR.current.rotation.x = Math.sin(swing.current + 2.1) * amp - 0.4;
     if (body.current) {
-      body.current.scale.y = (kind === "boss" ? 1.3 : 1) * (1 + Math.sin(t * 9 * rage) * 0.06 * rage);
-      body.current.rotation.z = Math.sin(t * 3.3 * rage) * 0.09;
-      body.current.position.y = Math.abs(Math.sin(t * 5 * rage)) * 0.12;
+      body.current.scale.y = (kind === "boss" ? 1.3 : 1) * (1 + Math.sin(t * 9 * rage) * 0.05 * rage);
+      body.current.rotation.z = Math.sin(t * 3.3 * rage) * 0.07;
+      body.current.position.y = Math.abs(Math.sin(swing.current * 0.9)) * 0.1;
     }
 
     if (kind === "brigand") {
