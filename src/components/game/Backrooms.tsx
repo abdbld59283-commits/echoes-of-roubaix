@@ -4,13 +4,14 @@ import * as THREE from "three";
 import { useScenePalette } from '@/game/scenePalette';
 
 import { CELL, at, cellToWorld, type World } from "@/game/maze";
-import { carpetTexture, ceilingTexture, wallpaperTexture } from "@/game/textures";
+import { carpetTexture, ceilingTexture, useSurfaceTexture } from "@/game/textures";
+import wallpaperUrl from "@/assets/surfaces/wallpaper.jpg?url";
 
 const WALL_H = 3.2;
 const DUMMY = new THREE.Object3D();
 
 export function Backrooms({ world, playerPos }: { world: World; playerPos: THREE.Vector3 }) {
-  const wallpaper = useMemo(() => wallpaperTexture(1), []);
+  const wallpaper = useSurfaceTexture(wallpaperUrl, 1);
   const carpet = useMemo(() => carpetTexture(28), []);
   const ceiling = useMemo(() => ceilingTexture(22), []);
   const lamp = useRef<THREE.PointLight>(null);
@@ -85,7 +86,7 @@ export function Backrooms({ world, playerPos }: { world: World; playerPos: THREE
         name="backrooms-walls"
       >
         <boxGeometry args={[CELL, WALL_H, CELL]} />
-        <meshStandardMaterial map={wallpaper} roughness={0.95} color={palette.wall} />
+        <meshStandardMaterial map={wallpaper} bumpMap={wallpaper} bumpScale={0.04} roughness={0.9} color="#e6d9b8" />
       </instancedMesh>
       {[world.spawn, world.goal].map((cell, i) => { const p = cellToWorld(world.size, cell.x, cell.z); return <group key={i} position={[p.x, 0, p.z]}><mesh position={[0, 0.016, 0]} rotation-x={-Math.PI / 2}><circleGeometry args={[1.5, 32]} /><meshPhysicalMaterial color={palette.carpet} roughness={0.08} metalness={0.1} clearcoat={1} transparent opacity={0.8} /></mesh><mesh position={[0, 3.14, 0]} rotation-x={Math.PI / 2}><planeGeometry args={[1.3, 0.25]} /><meshStandardMaterial color={palette.lamp} emissive={palette.lamp} emissiveIntensity={3} /></mesh></group>; })}
     </>
