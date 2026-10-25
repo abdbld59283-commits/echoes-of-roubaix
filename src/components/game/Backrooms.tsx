@@ -47,12 +47,12 @@ export function Backrooms({ world, playerPos }: { world: World; playerPos: THREE
     const t = state.clock.elapsedTime;
     if (lamp.current) {
       lamp.current.position.set(playerPos.x, 2.7, playerPos.z);
-      lamp.current.intensity = 22 + Math.sin(t * 13) * 2;
+      lamp.current.intensity = 14 + Math.sin(t * 13) * 1.5;
     }
     if (flickerLight.current) {
       const f = Math.random() < 0.06 ? 0.05 : 1;
       flickerLight.current.position.set(playerPos.x, 3.0, playerPos.z - 6);
-      flickerLight.current.intensity = 12 * f;
+      flickerLight.current.intensity = 8 * f;
     }
   });
 
@@ -62,8 +62,8 @@ export function Backrooms({ world, playerPos }: { world: World; playerPos: THREE
   return (
     <>
       <color attach="background" args={[palette.liminal]} />
-      <fogExp2 attach="fog" args={[palette['liminal-fog'], 0.04]} />
-      <ambientLight intensity={1.2} color={palette['liminal-ambient']} />
+      <fogExp2 attach="fog" args={[palette['liminal-fog'], 0.055]} />
+      <ambientLight intensity={0.65} color={palette['liminal-ambient']} />
       <pointLight ref={lamp} color={palette.lamp} distance={26} decay={1.5} />
       <pointLight ref={flickerLight} color={palette['liminal-flicker']} distance={12} decay={2} />
 
@@ -86,7 +86,7 @@ export function Backrooms({ world, playerPos }: { world: World; playerPos: THREE
         name="backrooms-walls"
       >
         <boxGeometry args={[CELL, WALL_H, CELL]} />
-        <meshStandardMaterial map={wallpaper} bumpMap={wallpaper} bumpScale={0.04} roughness={0.9} color="#e6d9b8" />
+        <meshStandardMaterial map={wallpaper} bumpMap={wallpaper} bumpScale={0.04} roughness={0.9} color="#bfae83" />
       </instancedMesh>
       {[world.spawn, world.goal].map((cell, i) => { const p = cellToWorld(world.size, cell.x, cell.z); return <group key={i} position={[p.x, 0, p.z]}><mesh position={[0, 0.016, 0]} rotation-x={-Math.PI / 2}><circleGeometry args={[1.5, 32]} /><meshPhysicalMaterial color={palette.carpet} roughness={0.08} metalness={0.1} clearcoat={1} transparent opacity={0.8} /></mesh><mesh position={[0, 3.14, 0]} rotation-x={Math.PI / 2}><planeGeometry args={[1.3, 0.25]} /><meshStandardMaterial color={palette.lamp} emissive={palette.lamp} emissiveIntensity={3} /></mesh></group>; })}
     </>
