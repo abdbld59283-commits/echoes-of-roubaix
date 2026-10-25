@@ -260,6 +260,16 @@ export function BackroomsGame() {
     setPhase("brief");
   };
 
+  // Dev-only quest jump for visual verification of each world.
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    (window as unknown as { __echoJump?: (i: number) => void }).__echoJump = (i: number) => {
+      setIndex(i);
+      setAttempt((a) => a + 1);
+      setPhase("play");
+    };
+  }, []);
+
   return (
     <div ref={containerRef} data-phase={phase} className="game-shell fixed inset-0 cursor-crosshair bg-game-dark" onClickCapture={() => interactionSound()}>
       {(phase === "title" || phase === "brief") && <EchoBackdrop />}
