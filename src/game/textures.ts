@@ -1,4 +1,20 @@
+import { useMemo } from "react";
+import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
+
+/** Load a generated surface image as a tiling texture (suspends until ready). */
+export function useSurfaceTexture(url: string, repeat = 1) {
+  const tex = useTexture(url);
+  return useMemo(() => {
+    const t = tex.clone();
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.repeat.set(repeat, repeat);
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = 8;
+    t.needsUpdate = true;
+    return t;
+  }, [tex, repeat]);
+}
 
 function canvas(size = 256) {
   const c = document.createElement("canvas");
