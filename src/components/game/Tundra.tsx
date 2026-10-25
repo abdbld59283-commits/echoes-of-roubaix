@@ -7,7 +7,8 @@ import { SnowTrail } from './SnowTrail';
 import { AssetModel } from './AssetModel';
 
 import { CELL, at, cellToWorld, worldToCell, type World } from "@/game/maze";
-import { iceTexture, snowTexture } from "@/game/textures";
+import { iceTexture, useSurfaceTexture } from "@/game/textures";
+import snowUrl from "@/assets/surfaces/snow.jpg?url";
 
 const DUMMY = new THREE.Object3D();
 
@@ -71,7 +72,7 @@ export function Tundra({
   playerPos: THREE.Vector3;
   storm?: boolean;
 }) {
-  const snow = useMemo(() => snowTexture(50), []);
+  const snow = useSurfaceTexture(snowUrl, 50);
   const ice = useMemo(() => iceTexture(2), []);
   const sun = useRef<THREE.DirectionalLight>(null);
   const foliage = useRef<THREE.Group>(null);

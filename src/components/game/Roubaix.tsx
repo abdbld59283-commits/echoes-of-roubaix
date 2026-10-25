@@ -2,15 +2,17 @@ import { Environment, Lightformer, Html } from "@react-three/drei";
 import { useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { CELL, at, cellToWorld, type World } from "@/game/maze";
-import { asphaltTexture, brickTexture } from "@/game/textures";
+import { useSurfaceTexture } from "@/game/textures";
+import facadeUrl from "@/assets/surfaces/facade.jpg?url";
+import pavingUrl from "@/assets/surfaces/paving.jpg?url";
 import { useScenePalette } from "@/game/scenePalette";
 import { AssetModel } from "./AssetModel";
 
 const DUMMY = new THREE.Object3D();
 export function Roubaix({ world, clear = false }: { world: World; playerPos: THREE.Vector3; clear?: boolean }) {
   const palette = useScenePalette();
-  const brick = useMemo(() => brickTexture(1), []);
-  const paving = useMemo(() => asphaltTexture(18), []);
+  const brick = useSurfaceTexture(facadeUrl, 1);
+  const paving = useSurfaceTexture(pavingUrl, 18);
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const cells = useMemo(() => {
     const list: [number, number][] = [];

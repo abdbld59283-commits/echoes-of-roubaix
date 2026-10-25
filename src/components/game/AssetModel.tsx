@@ -1,5 +1,5 @@
 import { useAnimations, useGLTF } from "@react-three/drei";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
 import pistol from "@/assets/models/pistol.glb?url";
@@ -28,10 +28,18 @@ export function AssetModel({ model, height = 1.8, animation = 'idle', ...props }
     return copy;
   }, [scene, height]);
   const { actions } = useAnimations(animations, object);
+  const current = useRef<THREE.AnimationAction | null>(null);
   useEffect(() => {
-    const action = actions[animation] ?? actions['idle'];
-    action?.reset().fadeIn(0.25).play();
-    return () => { action?.fadeOut(0.25); };
+    const next = actions[animation] ?? actions['idle'] ?? Object.values(actions)[0];
+    if (!next || next === current.current) return;
+    const prev = current.current;
+    current.current = next;
+    next.reset().fadeIn(0.25).play();
+    if (!prev) return;
+    prev.fadeOut(0.25);
+    const timer = setTimeout(() => prev.stop(), 300);
+    return () => clearTimeout(timer);
   }, [actions, animation]);
+  useEffect(() => () => { current.current?.stop(); current.current = null; }, []);
   return <group {...props}><primitive object={object} /></group>;
 }

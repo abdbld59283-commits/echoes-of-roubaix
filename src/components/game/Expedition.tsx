@@ -108,9 +108,9 @@ function Companion({ person, ...props }: TeamProps & { person: number }) {
     const resource = nearbyResource(resources.current.values(), playerPos, p);
     const nextAnimation = pulse.current > 0 ? 'holding-right-shoot' : resource && Math.hypot(resource.x - p.x, resource.z - p.z) < 2.5 ? 'pick-up' : moving ? 'sprint' : armedRef.current ? 'holding-right' : 'idle';
     if (lastAnimation.current !== nextAnimation) { lastAnimation.current = nextAnimation; setAnimation(nextAnimation); }
-    pulse.current -= dt; hurt.current -= dt;
     group.scale.setScalar(hurt.current > 0 ? 0.92 : 1);
     if (flash.current) flash.current.visible = pulse.current > 0;
+    pulse.current -= dt; hurt.current -= dt;
   });
   if (down) return null;
   return <group ref={root} position={[position.current.x, 0, position.current.z]}>
