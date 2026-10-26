@@ -27,13 +27,14 @@ export function Roubaix({ world, clear = false }: { world: World; playerPos: THR
       DUMMY.position.set(p.x, height / 2, p.z); DUMMY.rotation.set(0, 0, 0); DUMMY.scale.set(1, height / 4, 1); DUMMY.updateMatrix(); mesh.setMatrixAt(i, DUMMY.matrix);
     });
     mesh.instanceMatrix.needsUpdate = true;
+    mesh.computeBoundingBox(); mesh.computeBoundingSphere();
   }, [cells, world.size, palette]);
   if (!palette) return null;
   return <>
     <color attach="background" args={[palette.sky]} />
     <fog attach="fog" args={[palette.sky, 220, 500]} />
-    <hemisphereLight args={[palette.sky, palette.stone, clear ? 2.8 : 2]} />
-    <directionalLight position={[-25, 35, 20]} color={palette.sun} intensity={clear ? 4.2 : 3} castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-camera-left={-35} shadow-camera-right={35} shadow-camera-top={35} shadow-camera-bottom={-35} />
+    <hemisphereLight args={[palette.sky, palette.stone, clear ? 1.3 : 1]} />
+    <directionalLight position={[-25, 35, 20]} color={palette.sun} intensity={clear ? 2.6 : 2} castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-camera-left={-35} shadow-camera-right={35} shadow-camera-top={35} shadow-camera-bottom={-35} />
     <Environment resolution={64}><Lightformer intensity={2} position={[0, 15, 0]} scale={[40, 40, 1]} /><Lightformer color={palette.sky} intensity={1} position={[15, 8, 0]} rotation-y={-Math.PI / 2} scale={[30, 20, 1]} /></Environment>
     <mesh rotation-x={-Math.PI / 2} receiveShadow><planeGeometry args={[world.size * CELL * 1.4, world.size * CELL * 1.4]} /><meshStandardMaterial map={paving} bumpMap={paving} bumpScale={0.03} roughness={0.75} color={palette.stone} /></mesh>
     <instancedMesh ref={meshRef} args={[undefined, undefined, Math.max(cells.length, 1)]} castShadow receiveShadow><boxGeometry args={[CELL * 0.98, 4, CELL * 0.98]} /><meshStandardMaterial map={brick} bumpMap={brick} bumpScale={0.07} roughness={0.65} /></instancedMesh>
@@ -50,6 +51,5 @@ export function Roubaix({ world, clear = false }: { world: World; playerPos: THR
     {[-1, 1].map(side => <group key={side}>{[-12, -4, 4, 12].map((z, i) => <AssetModel key={z} model="house" height={6 + i % 2} position={[side * 23, 0, z]} rotation={[0, side * -Math.PI / 2, 0]} />)}{[-10, 8].map(z => <AssetModel key={`tree-${z}`} model="tree" height={4.5} position={[side * 17, 0, z]} />)}</group>)}
     <Html position={[0, 0.5, 6]} center distanceFactor={15}><span className="camp-name">GRAND-PLACE</span></Html>
     {[-1, 1].map(side => <group key={`garden-${side}`}>{[-15, -5, 5, 15].map(z => <group key={z} position={[side * 16, 0.025, z]}><mesh rotation-x={-Math.PI / 2}><circleGeometry args={[2, 24]} /><meshStandardMaterial color={palette.leaf} roughness={0.9} /></mesh><AssetModel model="tree" height={5.5} position={[0, 0, 0]} /></group>)}</group>)}
-    {[0, 1, 2, 3].map(i => <mesh key={`sunbeam-${i}`} position={[-12 + i * 7, 14, -10]} rotation={[0, 0, -0.6]}><cylinderGeometry args={[0.3, 2.2, 32, 12, 1, true]} /><meshBasicMaterial color={palette.sun} transparent opacity={0.035} depthWrite={false} blending={THREE.AdditiveBlending} side={THREE.DoubleSide} /></mesh>)}
   </>;
 }

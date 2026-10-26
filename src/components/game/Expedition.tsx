@@ -91,22 +91,6 @@ function Companion({ person, ...props }: TeamProps & { person: number }) {
       if (moving) facing.set(next.x, 0, next.z);
       if (Math.hypot(next.x - p.x, next.z - p.z) < 0.25) path.current.shift();
     }
-    if (!armedRef.current) for (const w of supplies.current.values()) { const d = Math.hypot(w.x - p.x, w.z - p.z); if (d < best) { best = d; weapon = w; } }
-        if (weapon) destination.set(weapon.x, 0, weapon.z);
-        else if (resource) destination.set(resource.x, 0, resource.z);
-        else {
-          const angle = person * 2.4, radius = 4 + Math.floor(person / 6) * 2;
-          const x = playerPos.x + Math.cos(angle) * radius, z = playerPos.z + Math.sin(angle) * radius;
-          if (!isSolid(world, x, z)) destination.set(x, 0, z);
-        }
-        path.current = followRoute(world, p, destination);
-      }
-      const next = path.current[0];
-      if (next) {
-        moving = walkToward(world, p, next, 7.5 * dt);
-        if (Math.hypot(next.x - p.x, next.z - p.z) < 0.25) path.current.shift();
-      }
-    }
     if (!armedRef.current) for (const [i, w] of supplies.current) {
       if (Math.hypot(w.x - p.x, w.z - p.z) < 1.6) { supplies.current.delete(i); armedRef.current = true; setArmed(true); routing.current = 0; break; }
     }

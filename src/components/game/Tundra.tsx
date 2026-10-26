@@ -101,7 +101,7 @@ export function Tundra({
       const h = 2 + ((cx * 31 + cz * 17) % 7) * 0.5;
       DUMMY.position.set(p.x, h / 2 - 0.2, p.z);
       DUMMY.rotation.set(0, ((cx * 13 + cz * 7) % 10) * 0.31, 0);
-      DUMMY.scale.set(1, h / 3, 1);
+      DUMMY.scale.set(0.88 + ((cx * 7 + cz) % 5) * 0.04, h / 3, 0.86 + ((cz * 11 + cx) % 5) * 0.05);
       DUMMY.updateMatrix();
       mesh.setMatrixAt(i, DUMMY.matrix);
       i++;
@@ -113,7 +113,7 @@ export function Tundra({
   useLayoutEffect(() => {
     lastRegion.current = "";
     updateIce();
-  }, [cells, world.size]);
+  }, [cells, world.size, palette]);
 
   useFrame((state) => {
     updateIce();
@@ -159,7 +159,7 @@ export function Tundra({
         castShadow
         receiveShadow
       >
-        <dodecahedronGeometry args={[CELL * 0.62, 0]} />
+        <dodecahedronGeometry args={[CELL * 0.62, 1]} />
         <meshPhysicalMaterial map={ice} bumpMap={ice} bumpScale={0.06} roughness={0.32} clearcoat={0.4} color={palette.ice} />
       </instancedMesh>
 
