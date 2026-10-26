@@ -1,4 +1,7 @@
 # Améliorations du document
+- [ ] Rendre les compagnons autonomes : missions réparties, recherche d’armes, combat contre les brigands, déplacements naturels sans poursuite permanente du joueur.
+- [ ] Renforcer le réalisme des personnages, décors et cinématiques avec les assets légalement disponibles ; préciser les limites du photoréalisme.
+- [ ] Vérifier les décisions de l’IA par tests et les interactions/rendus en jeu.
 - [x] Harmoniser le rendu réaliste stylisé : textures générées (papier peint, neige, façades briques, pavés) intégrées aux trois mondes, Backrooms restés sombres.
 - [x] Améliorer les animations : transitions de clips sans chevauchement, démarche des monstres liée à leur vitesse avec montée de tension progressive, flash de tir des compagnons corrigé.
 - [x] Vérifier les trois mondes dans le navigateur : captures Backrooms, toundra et Roubaix conformes, aucune erreur console ; 28 tests réussis.
