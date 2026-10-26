@@ -26,23 +26,24 @@ export function Introduction({ world, onFinish }: { world: World; onFinish: () =
     const t = elapsed.current * 11 / INTRO_DURATION;
     camera.rotation.order = 'YXZ';
     if (t < 4) {
-      camera.position.set(spawn.x, 41.7 + Math.sin(t * 7) * 0.025, spawn.z + 5 - t * 1.2);
-      camera.rotation.set(0, 0, 0);
+      camera.position.set(spawn.x + Math.sin(t * 3.5) * 0.018, 41.7 + Math.sin(t * 7) * 0.025, spawn.z + 5 - t * 1.2);
+      camera.rotation.set(Math.sin(t * 1.2) * 0.018, Math.sin(t * 0.8) * 0.06, Math.sin(t * 3.5) * 0.006);
     } else if (t < 6.5) {
       const p = Math.min(1, (t - 4) / 2.5);
-      camera.position.set(spawn.x + Math.sin(t * 80) * 0.055, 41.7 - p * p * 41.1, spawn.z);
-      camera.rotation.set(0.2 + p * 0.8, yaw * p, Math.sin(t * 50) * 0.04);
+      camera.position.set(spawn.x + Math.sin(t * 18) * 0.025 * Math.sin(p * Math.PI), 41.7 - p * p * 41.1, spawn.z + 0.2 * (1 - p));
+      camera.rotation.set(p * 0.8, yaw * THREE.MathUtils.smoothstep(p, 0, 1), Math.sin(t * 12) * 0.025 * Math.sin(p * Math.PI));
       if (street.current) street.current.visible = false;
     } else {
       const p = Math.min(1, (t - 6.5) / 2);
       camera.position.set(spawn.x, 0.6 + THREE.MathUtils.smoothstep(p, 0, 1) * 1.1, spawn.z);
-      camera.rotation.set(t < 10 ? 0.5 * Math.sin(Math.min(1, (t - 8) / 2) * Math.PI) : 0, yaw, 0);
+      const recovery = THREE.MathUtils.smoothstep(p, 0, 1);
+      camera.rotation.set(0.8 * (1 - recovery) + (t < 10 ? 0.28 * Math.sin(Math.max(0, Math.min(1, (t - 8) / 2)) * Math.PI) : 0), yaw + Math.sin(Math.max(0, t - 8) * 1.6) * 0.04 * (1 - Math.min(1, Math.max(0, t - 10))), 0);
     }
     if (outside && t >= 4) setOutside(false);
     if (hands.current) {
       hands.current.visible = t > 8 && t < 10.5;
       hands.current.position.copy(camera.position); hands.current.quaternion.copy(camera.quaternion);
-      hands.current.translateY(-1.35); hands.current.translateZ(-0.42);
+      hands.current.translateY(-1.5); hands.current.translateZ(-0.38);
     }
     if (elapsed.current >= INTRO_DURATION) { done.current = true; onFinish(); }
   });

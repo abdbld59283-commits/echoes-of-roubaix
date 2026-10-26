@@ -27,3 +27,5 @@
 - Use a bounded local snow mesh for footprint deformation and pooled weapon impact particles; this limits geometry and allocations on mobile GPUs.
 - Generated surface images live in src/assets/surfaces and load through useSurfaceTexture (drei useTexture + repeat); scenes stay inside the Canvas Suspense boundary so texture loading cannot hang the app.
 - BackroomsGame exposes a dev-only window.__echoJump(questIndex) hook guarded by import.meta.env.DEV; it lets browser verification reach any world without playing through, and never ships to production.
+- Keep autonomous team jobs and exclusive resource assignments in the shared assistance module with a game-owned jobs registry; this separates player orders from independent combat and quest work.
+- Human survivor assets use locally embedded CC0 Grab3D rigs; derive missing idle/aim poses from their walk tracks without pretending they contain facial or cinematic motion capture.

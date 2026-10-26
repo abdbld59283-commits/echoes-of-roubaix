@@ -10,10 +10,10 @@ import { shootTarget, type Target } from "@/game/combat";
 import { useScenePalette } from "@/game/scenePalette";
 import type { AttackView } from "@/game/threat";
 import { SURVIVORS } from "@/game/survivors";
-import { nearbyResource } from '@/game/assistance';
+import { companionJob, type TeamMode, type TeamJob, type JobCandidate } from '@/game/assistance';
 
 interface TeamProps {
-  world: World; playerPos: THREE.Vector3; active: boolean; following: boolean;
+  world: World; playerPos: THREE.Vector3; active: boolean; mode: TeamMode; jobs: React.RefObject<Map<number, TeamJob>>;
   targets: React.RefObject<Map<string, Target>>; attack: React.RefObject<AttackView | null>;
   allies: React.RefObject<Map<number, THREE.Vector3>>;
   missionPoints: [number, number, number][];
@@ -23,7 +23,7 @@ interface TeamProps {
   onDown: () => void;
 }
 function Companion({ person, ...props }: TeamProps & { person: number }) {
-  const { world, playerPos, active, following, targets, attack, allies, resources, allyHits, supplies, onDown } = props;
+  const { world, playerPos, active, mode, jobs, targets, attack, allies, resources, allyHits, supplies, onDown } = props;
   const [animation, setAnimation] = useState('idle');
   const lastAnimation = useRef('idle');
   const [armed, setArmed] = useState(person % 3 === 0);
@@ -41,45 +41,55 @@ function Companion({ person, ...props }: TeamProps & { person: number }) {
   const destination = useMemo(() => new THREE.Vector3(), []);
   const flash = useRef<THREE.Mesh>(null);
   const pulse = useRef(0);
+  const job = useRef<TeamJob | null>(null);
+  const facing = useMemo(() => new THREE.Vector3(), []);
+  const shotDirection = useMemo(() => new THREE.Vector3(), []);
   const palette = useScenePalette();
   useEffect(() => {
     const registry = allies.current, hits = allyHits.current;
+    const assignments = jobs.current;
     registry.set(person, position.current);
     hits.set(person, () => {
       hp.current -= 1; hurt.current = 0.3;
       if (hp.current > 0) return;
-      registry.delete(person); hits.delete(person); setDown(true); onDown();
+      registry.delete(person); hits.delete(person); assignments.delete(person); setDown(true); onDown();
     });
-    return () => { registry.delete(person); hits.delete(person); };
-  }, [allies, allyHits, person, onDown]);
+    return () => { registry.delete(person); hits.delete(person); assignments.delete(person); };
+  }, [allies, allyHits, jobs, person, onDown]);
   useFrame(({ clock }, rawDt) => {
     const dt = Math.min(rawDt, 0.05), group = root.current;
     if (!group || !active || attack.current || down) return;
     const p = position.current;
     let moving = false;
-    if (following) {
-      routing.current -= dt;
-      if (routing.current <= 0) {
-        routing.current = 1.5;
-        destination.copy(playerPos);
-        const resource = nearbyResource(resources.current.values(), playerPos, p);
-        // Unarmed survivors go pick up the nearest weapon lying in the snow.
-        let weapon: { x: number; z: number } | undefined, best = 30;
-        if (!armedRef.current) for (const w of supplies.current.values()) { const d = Math.hypot(w.x - p.x, w.z - p.z); if (d < best) { best = d; weapon = w; } }
-        if (weapon) destination.set(weapon.x, 0, weapon.z);
-        else if (resource) destination.set(resource.x, 0, resource.z);
-        else {
-          const angle = person * 2.4, radius = 4 + Math.floor(person / 6) * 2;
-          const x = playerPos.x + Math.cos(angle) * radius, z = playerPos.z + Math.sin(angle) * radius;
-          if (!isSolid(world, x, z)) destination.set(x, 0, z);
-        }
-        path.current = followRoute(world, p, destination);
+    routing.current -= dt;
+    if (routing.current <= 0) {
+      routing.current = 0.9 + person * 0.025;
+      const candidates: JobCandidate[] = [];
+      for (const [key, r] of resources.current) candidates.push({ ...r, key, kind: 'collect' });
+      for (const [i, w] of supplies.current) candidates.push({ ...w, key: `weapon-${i}`, kind: 'arm' });
+      for (const [key, target] of targets.current) {
+        target.object.getWorldPosition(shotDirection);
+        candidates.push({ x: shotDirection.x, z: shotDirection.z, key, kind: 'combat', brigand: target.kind === 'brigand' });
       }
-      const next = path.current[0];
-      if (next) {
-        moving = walkToward(world, p, next, 7.5 * dt);
-        if (Math.hypot(next.x - p.x, next.z - p.z) < 0.25) path.current.shift();
+      job.current = companionJob(person, armedRef.current, mode, p, playerPos, center, candidates, jobs.current);
+      jobs.current.set(person, job.current);
+      destination.set(job.current.x, 0, job.current.z);
+      if (job.current.kind === 'combat') {
+        // Fighters keep a firing distance and flank from different sides.
+        const angle = Math.atan2(p.z - destination.z, p.x - destination.x) + (person % 2 ? 0.35 : -0.35);
+        destination.x += Math.cos(angle) * 9; destination.z += Math.sin(angle) * 9;
       }
+      if (isSolid(world, destination.x, destination.z)) {
+        destination.set(job.current.x, 0, job.current.z);
+        if (isSolid(world, destination.x, destination.z)) destination.copy(p);
+      }
+      path.current = mode === 'hold' ? [] : followRoute(world, p, destination);
+    }
+    const next = path.current[0];
+    if (next) {
+      moving = walkToward(world, p, next, (job.current?.kind === 'combat' ? 4.8 : 3.3) * dt);
+      if (moving) facing.set(next.x, 0, next.z);
+      if (Math.hypot(next.x - p.x, next.z - p.z) < 0.25) path.current.shift();
     }
     if (!armedRef.current) for (const [i, w] of supplies.current) {
       if (Math.hypot(w.x - p.x, w.z - p.z) < 1.6) { supplies.current.delete(i); armedRef.current = true; setArmed(true); routing.current = 0; break; }
@@ -96,17 +106,19 @@ function Companion({ person, ...props }: TeamProps & { person: number }) {
           if (d < distance) { distance = d; nearest = target; }
         }
         if (nearest) {
-          nearest.object.getWorldPosition(destination); destination.y = nearest.kind === "brigand" ? 1 : 1.95;
+          nearest.object.getWorldPosition(shotDirection); shotDirection.y = nearest.kind === "brigand" ? 1 : 1.95;
           origin.copy(p); origin.y = 1.2;
-          group.lookAt(destination.x, 0, destination.z);
-          if (shootTarget(world, origin, destination.sub(origin).normalize(), [nearest], 0.5)) pulse.current = 0.15;
+          facing.set(shotDirection.x, 0, shotDirection.z);
+          if (shootTarget(world, origin, shotDirection.sub(origin).normalize(), [nearest], 0.5)) pulse.current = 0.15;
         }
       }
     }
     group.position.copy(p);
-    if (moving) group.lookAt(destination.x, 0, destination.z);
-    const resource = nearbyResource(resources.current.values(), playerPos, p);
-    const nextAnimation = pulse.current > 0 ? 'holding-right-shoot' : resource && Math.hypot(resource.x - p.x, resource.z - p.z) < 2.5 ? 'pick-up' : moving ? 'sprint' : armedRef.current ? 'holding-right' : 'idle';
+    if (moving || pulse.current > 0) {
+      const yaw = Math.atan2(facing.x - p.x, facing.z - p.z);
+      group.rotation.y += Math.atan2(Math.sin(yaw - group.rotation.y), Math.cos(yaw - group.rotation.y)) * (1 - Math.exp(-8 * dt));
+    }
+    const nextAnimation = pulse.current > 0 ? 'holding-right-shoot' : moving ? job.current?.kind === 'combat' ? 'sprint' : 'walk' : armedRef.current ? 'holding-right' : 'idle';
     if (lastAnimation.current !== nextAnimation) { lastAnimation.current = nextAnimation; setAnimation(nextAnimation); }
     group.scale.setScalar(hurt.current > 0 ? 0.92 : 1);
     if (flash.current) flash.current.visible = pulse.current > 0;
