@@ -24,7 +24,7 @@ import { Weapon, type Ammo } from "./Weapon";
 import { Arrival } from "./Arrival";
 import { FlintGuide } from './FlintGuide';
 import { Introduction } from './Introduction';
-import { openingPhase, questAssistance } from '@/game/assistance';
+import { openingPhase, questAssistance, type TeamMode, type TeamJob } from '@/game/assistance';
 import { MissionPickup, SurvivorCamp } from "./SurvivorCamp";
 import { SURVIVORS, missionComplete } from "@/game/survivors";
 import type { Target } from "@/game/combat";
@@ -59,7 +59,8 @@ export function BackroomsGame() {
   const [mission, setMission] = useState<number | null>(null);
   const [collected, setCollected] = useState(0);
   const [rewarded, setRewarded] = useState(false);
-  const [following, setFollowing] = useState(true);
+  const [teamMode, setTeamMode] = useState<TeamMode>('autonomous');
+  const jobs = useRef(new Map<number, TeamJob>());
   const [reinforced, setReinforced] = useState(false);
   const [brigandsKilled, setBrigandsKilled] = useState(0);
   const [boss, setBoss] = useState({ hp: 32, maxHp: 32, level: 1, next: 60 });
@@ -247,7 +248,7 @@ export function BackroomsGame() {
     resources.current.clear();
     ammo.current = { rounds: 8, reserve: 32, reloading: false }; setAmmoView({ ...ammo.current });
     setKills(0); setMission(null); setCollected(0); setRewarded(false); setDialogue(null); setNearPerson(null);
-    setBrigandsKilled(0); setBoss({ hp: 32, maxHp: 32, level: 1, next: 60 }); setReinforced(false); setFollowing(true); setLoot(null);
+    setBrigandsKilled(0); setBoss({ hp: 32, maxHp: 32, level: 1, next: 60 }); setReinforced(false); setTeamMode('autonomous'); jobs.current.clear(); setLoot(null);
     setSilex(0); setTeam(TEAM_SIZE); hpRef.current = PLAYER_HIT_POINTS; setHp(PLAYER_HIT_POINTS);
     setAttempt((a) => a + 1);
     setPhase(openingPhase(index, quest.world));
@@ -287,7 +288,7 @@ export function BackroomsGame() {
 
             {quest.world === "tundra" && <Campfires world={world} playerPos={playerPos} fires={fires} />}
             {quest.world === "tundra" && <SurvivorCamp world={world} playerPos={playerPos} active={false} onNear={setNearPerson} hidePeople />}
-            {quest.world === "tundra" && <SurvivorTeam key={`team-${index}-${attempt}`} world={world} playerPos={playerPos} active={playing && dialogue === null} following={following} targets={targets} attack={attack} allies={allies} allyHits={allyHits} supplies={supplies} resources={resources} onDown={onAllyDown} onNear={setNearPerson} missionPoints={[]} />}
+            {quest.world === "tundra" && <SurvivorTeam key={`team-${index}-${attempt}`} world={world} playerPos={playerPos} active={playing && dialogue === null} mode={teamMode} jobs={jobs} targets={targets} attack={attack} allies={allies} allyHits={allyHits} supplies={supplies} resources={resources} onDown={onAllyDown} onNear={setNearPerson} missionPoints={[]} />}
             {quest.world === "tundra" && <EnemyCamp world={world} />}
             {playing && quest.world === "tundra" && world.supplyCells?.map((cell, i) => <GroundSupply key={`supply-${attempt}-${i}`} world={world} cell={cell} index={i} playerPos={playerPos} active={dialogue === null && !attacked} onPickup={onSupply} supplies={supplies} />)}
             {playing && world.brigandCells?.map((cell, i) => <Monster key={`brigand-${attempt}-${i}`} id={`brigand-${attempt}-${i}`} kind="brigand" world={world} cell={cell} speed={3.4} playerPos={playerPos} onCatch={onMonsterCatch} threats={threats} attack={attack} targets={targets} onKill={onBrigandKill} active={dialogue === null} onShootPlayer={onShootPlayer} allies={allies} allyHits={allyHits} />)}
@@ -295,8 +296,8 @@ export function BackroomsGame() {
             {playing && assistance.flint && silex < SILEX_REQUIRED && <FlintGuide world={world} playerPos={playerPos} resources={resources} onUpdate={setFlintDirection} />}
             {phase === 'intro' ? <Introduction key={`intro-${attempt}`} world={world} onFinish={finishArrival} /> : phase === "finale" || phase === "victory" ? <Finale survivors={team} onFinish={() => { document.exitPointerLock?.(); setPhase("victory"); }} /> : phase === "arrival" ? <Arrival survivors={team} onFinish={finishArrival} /> : <Player world={world} look={look} keys={keys} playerPos={playerPos} shake={shake} attack={attack} active={playing && dialogue === null} />}
             <Weapon world={world} targets={targets} active={playing && dialogue === null} attack={attack} ammo={ammo} onAmmo={setAmmoView} reinforced={reinforced} />
-            {playing && mission !== null && SURVIVORS[mission]?.kind === "collect" && pickupPositions.map((position, i) => <MissionPickup key={`${attempt}-${i}`} id={`mission-${i}`} resources={resources} active={dialogue === null && !attacked} position={position} playerPos={playerPos} onCollect={onCollect} allies={following && dialogue === null && !attacked ? allies : undefined} />)}
-            {playing && silexPositions.map((position, i) => <MissionPickup key={`silex-${index}-${attempt}-${i}`} id={`flint-${i}`} resources={resources} guided active={dialogue === null && !attacked} position={position} playerPos={playerPos} onCollect={onSilex} allies={following && dialogue === null && !attacked ? allies : undefined} />)}
+            {playing && mission !== null && SURVIVORS[mission]?.kind === "collect" && pickupPositions.map((position, i) => <MissionPickup key={`${attempt}-${i}`} id={`mission-${i}`} resources={resources} active={dialogue === null && !attacked} position={position} playerPos={playerPos} onCollect={onCollect} allies={teamMode !== 'hold' && dialogue === null && !attacked ? allies : undefined} />)}
+            {playing && silexPositions.map((position, i) => <MissionPickup key={`silex-${index}-${attempt}-${i}`} id={`flint-${i}`} resources={resources} guided active={dialogue === null && !attacked} position={position} playerPos={playerPos} onCollect={onSilex} allies={teamMode !== 'hold' && dialogue === null && !attacked ? allies : undefined} />)}
             {playing && (
               <Objective
                 key={`goal-${index}-${attempt}`}
@@ -304,7 +305,7 @@ export function BackroomsGame() {
                 color={quest.world === "backrooms" ? "#7de2ff" : quest.world === "tundra" ? "#ffd27d" : "#ff9d5c"}
                 playerPos={playerPos}
                 visible={assistance.objective}
-                allies={quest.world === 'tundra' && following && dialogue === null && !attacked ? allies : undefined}
+                allies={quest.world === 'tundra' && teamMode !== 'hold' && dialogue === null && !attacked ? allies : undefined}
                 onReach={onReach}
               />
             )}
@@ -350,7 +351,7 @@ export function BackroomsGame() {
       )}
       {playing && assistance.flint && silex < SILEX_REQUIRED && flintDirection && <div className="flint-compass pointer-events-none z-30">{flintDirection}</div>}
       {playing && quest.world === "tundra" && <>
-        <div className="expedition-hud"><p>ÉQUIPE · {team} SURVIVANTS · BRIGANDS {brigandsKilled}/10</p><p className="text-mustard">SILEX {Math.min(silex, SILEX_REQUIRED)}/{SILEX_REQUIRED} · SANTÉ {"■".repeat(hp)}{"□".repeat(PLAYER_HIT_POINTS - hp)}</p><ControlButton variant="ghost" size="sm" className="mt-2 border border-hud/30 bg-game-dark/70 text-hud" onClick={e => { e.stopPropagation(); setFollowing(v => !v); }}>{following ? "Tenir la position" : "Me suivre"}</ControlButton></div>
+        <div className="expedition-hud"><p>ÉQUIPE · {team} SURVIVANTS · BRIGANDS {brigandsKilled}/10</p><p className="text-mustard">SILEX {Math.min(silex, SILEX_REQUIRED)}/{SILEX_REQUIRED} · SANTÉ {"■".repeat(hp)}{"□".repeat(PLAYER_HIT_POINTS - hp)}</p><div className="mt-2 flex flex-wrap gap-1" role="group" aria-label="Ordres de l’équipe">{(['autonomous', 'follow', 'hold'] as const).map(mode => <ControlButton key={mode} variant="ghost" size="sm" aria-pressed={teamMode === mode} className="border border-hud/30 bg-game-dark/70 text-hud aria-pressed:bg-hud/20" onClick={e => { e.stopPropagation(); setTeamMode(mode); }}>{mode === 'autonomous' ? 'Autonomes' : mode === 'follow' ? 'Me suivre' : 'Tenir la position'}</ControlButton>)}</div></div>
         <div className="boss-hud" aria-label="Boss des Rôdeurs"><p className="text-blood">LE PATRIARCHE · FORCE {boss.level}</p><progress value={boss.hp} max={boss.maxHp} /><p>{boss.hp <= 0 ? "Boss éliminé" : `${Math.ceil(boss.hp)}/${boss.maxHp} · Renforcement dans ${boss.next}s`}</p></div>
       </>}
       {playing && blocked && <p className="pointer-events-none fixed inset-x-4 top-1/4 z-30 text-center font-mono text-base text-blood">Trouve les {SILEX_REQUIRED} morceaux de silex avant de quitter la toundra ({silex}/{SILEX_REQUIRED})</p>}
