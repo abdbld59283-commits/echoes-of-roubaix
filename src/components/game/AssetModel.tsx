@@ -2,6 +2,8 @@ import { useAnimations, useGLTF } from "@react-three/drei";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
+import humanMan from '@/assets/models/human-man.glb?url';
+import humanWoman from '@/assets/models/human-woman.glb?url';
 import pistol from "@/assets/models/pistol.glb?url";
 import aela from "@/assets/models/aela.glb?url";
 import narek from "@/assets/models/narek.glb?url";
@@ -12,7 +14,7 @@ import crate from "@/assets/models/crate.glb?url";
 import house from "@/assets/models/house.glb?url";
 import tree from "@/assets/models/tree.glb?url";
 
-export const MODELS = { pistol: { url: pistol }, aela: { url: aela }, narek: { url: narek }, sila: { url: sila }, tent: { url: tent }, bedroll: { url: bedroll }, crate: { url: crate }, house: { url: house }, tree: { url: tree } };
+export const MODELS = { pistol: { url: pistol }, aela: { url: humanWoman }, narek: { url: humanMan }, sila: { url: humanWoman }, tent: { url: tent }, bedroll: { url: bedroll }, crate: { url: crate }, house: { url: house }, tree: { url: tree } };
 export function AssetModel({ model, height = 1.8, animation = 'idle', ...props }: {
   model: keyof typeof MODELS; height?: number; animation?: string; position?: [number, number, number]; rotation?: [number, number, number];
 }) {
