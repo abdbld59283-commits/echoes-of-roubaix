@@ -57,7 +57,7 @@ export function MobileControls({ keys, look }: { keys: RefObject<Set<string>>; l
 export function ShareJourney() {
   const [status, setStatus] = useState("");
   const share = async () => {
-    const data = { title: "Roubaix Echoes — Enquête résolue", text: "J'ai résolu les mystères de Roubaix sur Roubaix Echoes ! 🕵️‍♂️", url: "https://roubaix-echoes-game.lovable.app" };
+    const data = { title: "Roubaix : Les Ombres du Passé — Enquête résolue", text: "J'ai résolu les mystères de Roubaix sur Roubaix : Les Ombres du Passé ! 🕵️‍♂️", url: "https://roubaix-echoes-game.lovable.app" };
     try {
       if (navigator.share) { await navigator.share(data); setStatus("Parcours partagé"); }
       else if (navigator.clipboard) { await navigator.clipboard.writeText(`${data.text} ${data.url}`); setStatus("Lien copié"); }

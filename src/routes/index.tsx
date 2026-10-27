@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { BackroomsGame } from "@/components/game/BackroomsGame";
 
-const title = "Roubaix Echoes — des Backrooms à la Grand-Place";
+const title = "Roubaix : Les Ombres du Passé — des Backrooms à la Grand-Place";
 const description =
   "Une aventure immersive en dix quêtes et trois mondes : survis aux Backrooms, protège les survivants de la toundra et retrouve la Grand-Place de Roubaix en 2026.";
 
