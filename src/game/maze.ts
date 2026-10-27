@@ -200,18 +200,36 @@ export function generateRoubaix(size: number, seed: number): World {
   return { size, grid, spawn, goal, monsterCells: [], fireCells: [] };
 }
 
-export function buildWorld(kind: "backrooms" | "tundra" | "roubaix", seed: number, monsters: number, guided = false): World {
+/** Walking distance (in cells) from the spawn to every open cell. */
+export function walkDistances(world: World, start = world.spawn) {
+  const dist = new Map<number, number>([[start.z * world.size + start.x, 0]]);
+  const queue = [start];
+  for (let i = 0; i < queue.length; i++) {
+    const c = queue[i]!; const d = dist.get(c.z * world.size + c.x)!;
+    for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as const) {
+      const n = { x: c.x + dx, z: c.z + dz }, k = n.z * world.size + n.x;
+      if (n.x < 0 || n.z < 0 || n.x >= world.size || n.z >= world.size || at(world, n.x, n.z) || dist.has(k)) continue;
+      dist.set(k, d + 1); queue.push(n);
+    }
+  }
+  return dist;
+}
+
+/** Quest 2: the engraving sits in a hidden machine room at the farthest walkable point. */
+export function hiddenMachineRoom(world: World) {
+  let best = world.spawn, max = -1;
+  for (const [k, d] of walkDistances(world)) if (d > max) { max = d; best = { x: k % world.size, z: Math.floor(k / world.size) }; }
+  return best;
+}
+
+export function buildWorld(kind: "backrooms" | "tundra" | "roubaix", seed: number, monsters: number, hidden = false): World {
   const world =
     kind === "backrooms"
-      ? generateMaze(21, seed, 0.22)
+      ? generateMaze(hidden ? 25 : 21, seed, hidden ? 0.12 : 0.22)
       : kind === "tundra"
         ? generateTundra(165, seed)
         : generateRoubaix(25, seed);
-  if (kind === "backrooms" && guided) {
-    const path = routeToGoal(world);
-    const nearer = path[Math.min(path.length - 1, 10 + Math.abs(seed % 5))];
-    if (nearer) world.goal = { ...nearer };
-  }
+  if (kind === "backrooms" && hidden) world.goal = hiddenMachineRoom(world);
   world.monsterCells = pickMonsterCells(world, monsters, seed);
   return world;
 }
