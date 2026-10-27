@@ -371,7 +371,7 @@ export function BackroomsGame() {
       {phase === "title" && (
         <Panel title>
           <div className="echo-eyebrow"><Radio size={14} /> SIGNAL RETROUVÉ · ROUBAIX</div>
-          <h1 className="echo-title" data-text="ROUBAIX ECHOES">ROUBAIX<br /><span>ECHOES</span></h1>
+          <h1 className="echo-title" data-text="ROUBAIX">ROUBAIX<br /><span className="echo-subtitle">Les Ombres du Passé</span></h1>
           <p className="echo-tagline">La réalité n’a pas dit son dernier mot.</p>
           <Button onClick={() => setPhase("brief")}>Commencer l’enquête <ArrowRight /></Button>
           <div className="echo-title-stats"><span><b>03</b> MONDES</span><span><b>10</b> QUÊTES</span><span><b>19</b> SURVIVANTS</span></div>

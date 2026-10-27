@@ -78,9 +78,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Roubaix Echoes" },
+      { title: "Roubaix : Les Ombres du Passé" },
       { name: "description", content: "Des Backrooms à la Grand-Place de Roubaix : une aventure d'horreur en dix quêtes." },
-      { property: "og:title", content: "Roubaix Echoes" },
+      { property: "og:title", content: "Roubaix : Les Ombres du Passé" },
       { property: "og:description", content: "Survis aux Rôdeurs, aide le clan de la toundra et retrouve Roubaix en 2026." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
