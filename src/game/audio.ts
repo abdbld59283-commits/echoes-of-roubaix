@@ -4,17 +4,65 @@ let ctx: AudioContext | null = null;
 let droneGain: GainNode | null = null;
 let master: GainNode | null = null;
 let muted = false;
+let volume = 0.8;
+let music: { gain: GainNode; filter: BiquadFilterNode; nodes: AudioScheduledSourceNode[] } | null = null;
 const captures = new Set<HTMLAudioElement>();
 let droneSources: (OscillatorNode | AudioBufferSourceNode)[] = [];
 
 export function setAudioMuted(value: boolean) {
   muted = value;
-  if (ctx && master) master.gain.setTargetAtTime(value ? 0 : 1, ctx.currentTime, 0.04);
+  if (ctx && master) master.gain.setTargetAtTime(value ? 0 : volume, ctx.currentTime, 0.04);
   captures.forEach(audio => { audio.muted = value; });
 }
 
+/** One volume for synthesized ambience, music and capture sounds. */
+export function setAudioVolume(value: number) {
+  volume = Math.max(0, Math.min(1, value));
+  if (ctx && master && !muted) master.gain.setTargetAtTime(volume, ctx.currentTime, 0.04);
+  captures.forEach(audio => { audio.volume = volume; });
+}
+
+/** Slow mystery pad under the ambience; opens up and rises during pursuit. */
+function startMusic(c: AudioContext, kind: string) {
+  stopMusic();
+  const gain = c.createGain(); gain.gain.value = 0.0001;
+  const filter = c.createBiquadFilter(); filter.type = "lowpass"; filter.frequency.value = 420;
+  filter.connect(gain).connect(output(c));
+  gain.gain.exponentialRampToValueAtTime(kind === "roubaix" ? 0.03 : 0.022, c.currentTime + 4);
+  const root = kind === "backrooms" ? 110 : kind === "tundra" ? 98 : 130.8;
+  const nodes: AudioScheduledSourceNode[] = [];
+  for (const ratio of [1, 1.189, 1.498, 2.0]) {
+    const o = c.createOscillator(); o.type = "triangle"; o.frequency.value = root * ratio;
+    const lfo = c.createOscillator(); const lfoGain = c.createGain();
+    lfo.frequency.value = 0.05 + ratio * 0.03; lfoGain.gain.value = 3;
+    lfo.connect(lfoGain).connect(o.detune);
+    o.connect(filter); o.start(); lfo.start(); nodes.push(o, lfo);
+  }
+  music = { gain, filter, nodes };
+}
+function stopMusic() {
+  if (!ctx || !music) return;
+  const m = music; music = null;
+  m.gain.gain.setTargetAtTime(0.0001, ctx.currentTime, 0.3);
+  m.nodes.forEach(n => { try { n.stop(ctx!.currentTime + 1.5); } catch { /* stopped */ } });
+}
+export function setTension(chasing: boolean) {
+  if (!ctx || !music) return;
+  music.filter.frequency.setTargetAtTime(chasing ? 1400 : 420, ctx.currentTime, 0.6);
+}
+
+/** Intro bed: wind gusts plus electrical hum. */
+export function startIntroAmbience() {
+  const c = getCtx(); if (!c) return;
+  startDrone("tundra");
+  const hum = c.createOscillator(); hum.type = "sawtooth"; hum.frequency.value = 50;
+  const f = c.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = 180;
+  const g = c.createGain(); g.gain.value = 0.25;
+  hum.connect(f).connect(g).connect(droneGain ?? output(c)); hum.start(); droneSources.push(hum);
+}
+
 function output(c: AudioContext) {
-  if (!master) { master = c.createGain(); master.gain.value = muted ? 0 : 1; master.connect(c.destination); }
+  if (!master) { master = c.createGain(); master.gain.value = muted ? 0 : volume; master.connect(c.destination); }
   return master;
 }
 
@@ -41,10 +89,11 @@ function getCtx() {
 }
 
 /** Low buzzing drone — the sound of the Backrooms / the wind / the rain. */
-export function startDrone(kind: "backrooms" | "tundra" | "roubaix") {
+export function startDrone(kind: "backrooms" | "tundra" | "roubaix", withMusic = false) {
   const c = getCtx();
   if (!c) return;
   stopDrone();
+  if (withMusic) startMusic(c, kind);
   const gain = c.createGain();
   gain.gain.value = 0.0001;
   gain.connect(output(c));
@@ -97,6 +146,7 @@ export function gunshot() {
 }
 
 export function stopDrone() {
+  stopMusic();
   if (!ctx || !droneGain) return;
   const c = ctx; const gain = droneGain; const sources = droneSources;
   droneGain = null; droneSources = [];
@@ -164,7 +214,7 @@ export function threatPulse(distance: number, chasing: boolean) {
 export function playCatchSound() {
   if (typeof window === "undefined") return;
   const audio = new Audio(catchSound);
-  audio.volume = 1;
+  audio.volume = volume;
   audio.muted = muted;
   captures.add(audio);
   audio.onended = () => captures.delete(audio);
