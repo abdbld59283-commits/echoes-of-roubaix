@@ -1,7 +1,7 @@
 import { describe, it } from "vitest";
 import { strictEqual, ok } from "node:assert";
 import * as THREE from "three";
-import { buildWorld, routeToGoal } from "./maze";
+import { buildWorld, routeToGoal, walkDistances } from "./maze";
 import { shootTarget } from "./combat";
 import { missionComplete } from "./survivors";
 import { QUESTS } from "./quests";
@@ -28,13 +28,13 @@ describe("weapons, expanded tundra and accessible level two", () => {
       ok(routeToGoal(world, world.spawn, world.camp).length > 1);
     }
   });
-  it("level two keeps its two monsters but slows them and gives a continuous route", () => {
+  it("level two hides its goal in the farthest reachable machine room", () => {
     strictEqual(QUESTS[1]?.monsters, 2);
-    strictEqual(QUESTS[1]?.monsterSpeed, 2);
     for (let attempt = 0; attempt < 20; attempt++) {
-      const route = routeToGoal(buildWorld("backrooms", 2007 + attempt * 37, 2, true));
-      ok(route.length > 1);
-      ok(route.length <= 15);
+      const world = buildWorld("backrooms", 2007 + attempt * 37, 2, true);
+      const route = routeToGoal(world);
+      ok(route.length > 15);
+      strictEqual(route.length - 1, Math.max(...walkDistances(world).values()));
     }
   });
   it("survivor collection and hunt missions require their two objectives", () => {
