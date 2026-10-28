@@ -348,3 +348,12 @@ body { font-family: var(--font-mono); }
 .volume-slider { position: fixed; right: 62px; top: 22px; z-index: 70; width: 90px; accent-color: var(--mustard); }
 .journal-panel { position: fixed; inset: 10% 8%; z-index: 60; overflow: auto; padding: 24px; font-family: var(--font-mono); color: var(--hud); background: color-mix(in oklab, var(--game-dark) 92%, transparent); border: 1px solid color-mix(in oklab, var(--mustard) 40%, transparent); }
 .typewriter { white-space: pre-line; font-family: var(--font-mono); text-shadow: 0 0 8px var(--ice); }
+.intro-narration { min-height: 4.5em; margin: 16px auto 0; max-width: 540px; font-size: 14px; line-height: 1.6; }
+.wall-trace { width: 220px; color: var(--scene-metal); font: italic 16px/1.5 var(--font-mono); opacity: 0.8; pointer-events: none; }
+.journal-panel { inset: 10% max(16px, calc((100% - 720px) / 2)); border-radius: 6px; }
+.journal-panel h2 { font: 700 32px var(--font-display); color: var(--mustard); margin-bottom: 24px; }
+.journal-panel ol { padding-left: 24px; list-style: decimal; }
+.journal-panel li { padding: 16px 0; font-size: 13px; line-height: 1.7; border-bottom: 1px solid color-mix(in oklab, var(--hud) 20%, transparent); }
+.journal-panel button { float: right; }
+.volume-slider { width: 72px; right: 68px; top: 26px; }
+@media (max-width: 600px) { .volume-slider { width: 54px; } .echo-subtitle { font-size: 0.38em; } }

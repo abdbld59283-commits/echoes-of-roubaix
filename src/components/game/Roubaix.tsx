@@ -36,7 +36,7 @@ export function Roubaix({ world, clear = false }: { world: World; playerPos: THR
     <hemisphereLight args={[palette.sky, palette.stone, clear ? 1.3 : 1]} />
     <directionalLight position={[-25, 35, 20]} color={palette.sun} intensity={clear ? 2.6 : 2} castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-camera-left={-35} shadow-camera-right={35} shadow-camera-top={35} shadow-camera-bottom={-35} />
     <Environment resolution={64}><Lightformer intensity={2} position={[0, 15, 0]} scale={[40, 40, 1]} /><Lightformer color={palette.sky} intensity={1} position={[15, 8, 0]} rotation-y={-Math.PI / 2} scale={[30, 20, 1]} /></Environment>
-    <mesh rotation-x={-Math.PI / 2} receiveShadow><planeGeometry args={[world.size * CELL * 1.4, world.size * CELL * 1.4]} /><meshStandardMaterial map={paving} bumpMap={paving} bumpScale={0.03} roughness={0.75} color={palette.stone} /></mesh>
+    <mesh rotation-x={-Math.PI / 2} receiveShadow><planeGeometry args={[world.size * CELL * 1.4, world.size * CELL * 1.4]} /><meshPhysicalMaterial map={paving} bumpMap={paving} bumpScale={0.03} roughness={0.38} clearcoat={0.65} clearcoatRoughness={0.22} color={palette.stone} /></mesh>
     <instancedMesh ref={meshRef} args={[undefined, undefined, Math.max(cells.length, 1)]} castShadow receiveShadow><boxGeometry args={[CELL * 0.98, 4, CELL * 0.98]} /><meshStandardMaterial map={brick} bumpMap={brick} bumpScale={0.07} roughness={0.65} /></instancedMesh>
     {/* Recognisable civic facade, a deliberately simplified Grand-Place rather than an exact reconstruction. */}
     <group position={[0, 0, -20]}>

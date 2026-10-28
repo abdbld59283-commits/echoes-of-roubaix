@@ -4,6 +4,23 @@ import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Crosshair, Radio, RotateCcw,
 import { Button } from "@/components/ui/button";
 import type { Look } from "@/game/input";
 import artwork from "@/assets/roubaix-echoes.jpg";
+import { interactionSound } from '@/game/audio';
+
+export function IntroNarration() {
+  const text = 'Roubaix. Une rue familière.\nUn pas de trop… et la réalité se dérobe.';
+  const [length, setLength] = useState(0);
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setLength(text.length); return; }
+    let cursor = 0;
+    const timer = window.setInterval(() => {
+      cursor++; setLength(cursor);
+      if (cursor % 3 === 0) interactionSound();
+      if (cursor >= text.length) window.clearInterval(timer);
+    }, 65);
+    return () => window.clearInterval(timer);
+  }, []);
+  return <p className="typewriter intro-narration" aria-label={text}><span aria-hidden="true">{text.slice(0, length)}</span></p>;
+}
 
 export function EchoBackdrop() {
   return <div className="echo-backdrop" aria-hidden="true"><img src={artwork} width={1536} height={1024} alt="" /><div className="echo-backdrop-shade" /></div>;
@@ -57,7 +74,7 @@ export function MobileControls({ keys, look }: { keys: RefObject<Set<string>>; l
 export function ShareJourney() {
   const [status, setStatus] = useState("");
   const share = async () => {
-    const data = { title: "Roubaix : Les Ombres du Passé — Enquête résolue", text: "J'ai résolu les mystères de Roubaix sur Roubaix : Les Ombres du Passé ! 🕵️‍♂️", url: "https://roubaix-echoes-game.lovable.app" };
+    const data = { title: "Roubaix : Les Ombres du Passé — Enquête résolue", text: "J'ai résolu les mystères de Roubaix sur Roubaix : Les Ombres du Passé ! 🕵️‍♂️", url: "https://echoes-of-roubaix.lovable.app" };
     try {
       if (navigator.share) { await navigator.share(data); setStatus("Parcours partagé"); }
       else if (navigator.clipboard) { await navigator.clipboard.writeText(`${data.text} ${data.url}`); setStatus("Lien copié"); }

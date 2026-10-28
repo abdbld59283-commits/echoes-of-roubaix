@@ -43,8 +43,10 @@ function startMusic(c: AudioContext, kind: string) {
 function stopMusic() {
   if (!ctx || !music) return;
   const m = music; music = null;
-  m.gain.gain.setTargetAtTime(0.0001, ctx.currentTime, 0.3);
-  m.nodes.forEach(n => { try { n.stop(ctx!.currentTime + 1.5); } catch { /* stopped */ } });
+  const c = ctx;
+  m.gain.gain.setTargetAtTime(0.0001, c.currentTime, 0.3);
+  m.nodes.forEach(n => { try { n.stop(c.currentTime + 1.5); } catch { /* stopped */ } });
+  window.setTimeout(() => { m.nodes.forEach(n => n.disconnect()); m.filter.disconnect(); m.gain.disconnect(); }, 1600);
 }
 export function setTension(chasing: boolean) {
   if (!ctx || !music) return;
