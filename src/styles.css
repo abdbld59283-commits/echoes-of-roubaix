@@ -355,5 +355,5 @@ body { font-family: var(--font-mono); }
 .journal-panel ol { padding-left: 24px; list-style: decimal; }
 .journal-panel li { padding: 16px 0; font-size: 13px; line-height: 1.7; border-bottom: 1px solid color-mix(in oklab, var(--hud) 20%, transparent); }
 .journal-panel button { float: right; }
-.volume-slider { width: 72px; right: 68px; top: 26px; }
+.volume-slider { width: 72px; right: 68px; top: 70px; }
 @media (max-width: 600px) { .volume-slider { width: 54px; } .echo-subtitle { font-size: 0.38em; } }

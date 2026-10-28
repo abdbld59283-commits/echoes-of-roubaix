@@ -1,8 +1,9 @@
 # Améliorations du document
 - [x] Renommer le jeu « Roubaix : Les Ombres du Passé ».
-- [ ] Évolution immersion : intro machine à écrire + sons, poussière d’ambiance, quête 2 cachée et Backrooms plus retors, indices écrits sur les murs, journal, volume, sauvegarde.
-- [ ] Rendre les compagnons autonomes : missions réparties, recherche d’armes, combat contre les brigands, déplacements naturels sans poursuite permanente du joueur.
-- [ ] Renforcer le réalisme des personnages, décors et cinématiques avec les assets légalement disponibles ; préciser les limites du photoréalisme.
+- [x] Évolution immersion : intro machine à écrire + sons, poussière d’ambiance, quête 2 cachée sans balise ni indices, traces narratives dans les autres Backrooms, journal, volume, sauvegarde au début de quête ; pavés plus brillants.
+- [x] Rendre les compagnons autonomes : tâches réparties, armes et combat déjà intégrés ; 6 tests de décision passent, pas de combat complet rejoué ce tour.
+- [x] Renforcer personnages, décors et cinématiques avec les assets disponibles ; humains texturés et animations intégrés précédemment, pas de photoréalisme AAA ni de capture faciale.
+- [x] Vérifier la reprise : démarrage réel, introduction, tir, note découverte relue dans le journal, sauvegarde et reprise après rechargement ; 39 tests réussis, pas de partie complète ni de son écouté.
 - [x] Vérification totale : 34 tests, code sans erreur, trois mondes affichés sans erreur navigateur.
 - [x] Harmoniser le rendu réaliste stylisé : textures générées (papier peint, neige, façades briques, pavés) intégrées aux trois mondes, Backrooms restés sombres.
 - [x] Améliorer les animations : transitions de clips sans chevauchement, démarche des monstres liée à leur vitesse avec montée de tension progressive, flash de tir des compagnons corrigé.
