@@ -1,5 +1,5 @@
 # Améliorations du document
-- [ ] Renommer le jeu « Roubaix : Les Ombres du Passé ».
+- [x] Renommer le jeu « Roubaix : Les Ombres du Passé ».
 - [ ] Évolution immersion : intro machine à écrire + sons, poussière d’ambiance, quête 2 cachée et Backrooms plus retors, indices écrits sur les murs, journal, volume, sauvegarde.
 - [ ] Rendre les compagnons autonomes : missions réparties, recherche d’armes, combat contre les brigands, déplacements naturels sans poursuite permanente du joueur.
 - [ ] Renforcer le réalisme des personnages, décors et cinématiques avec les assets légalement disponibles ; préciser les limites du photoréalisme.
