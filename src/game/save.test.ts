@@ -9,5 +9,7 @@ describe("checkpoints", () => {
     expect(parseCheckpoint('{"index":4,"lives":0}', 10)).toBeNull();
     expect(parseCheckpoint('{"index":10,"lives":3}', 10)).toBeNull();
     expect(parseCheckpoint("not json", 10)).toBeNull();
+    expect(parseCheckpoint('{"index":1.5,"lives":3}', 10)).toBeNull();
+    expect(parseCheckpoint('{"index":1,"lives":2.5}', 10)).toBeNull();
   });
 });

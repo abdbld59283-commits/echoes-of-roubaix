@@ -31,7 +31,7 @@ export const QUESTS: Quest[] = [
     id: 2,
     title: "Les marques du mur",
     brief:
-      "Quelqu'un a gravé une carte sur le papier peint. Rejoins la balise pour la relever — les Rôdeurs détestent la lumière qui bouge.",
+      "Les couloirs se ressemblent, mais quelque chose a changé. Les Rôdeurs sont plus nombreux. Quelqu'un est passé ici avant toi.",
     objective: "Relever la gravure lumineuse",
     world: "backrooms",
     monsters: 2,

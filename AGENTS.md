@@ -29,3 +29,5 @@
 - BackroomsGame exposes a dev-only window.__echoJump(questIndex) hook guarded by import.meta.env.DEV; it lets browser verification reach any world without playing through, and never ships to production.
 - Keep autonomous team jobs and exclusive resource assignments in the shared assistance module with a game-owned jobs registry; this separates player orders from independent combat and quest work.
 - Human survivor assets use locally embedded CC0 Grab3D rigs; derive missing idle/aim poses from their walk tracks without pretending they contain facial or cinematic motion capture.
+- Keep narrative wall traces and journal deduplication in the shared journal module; exclude quest two so environmental storytelling never restores its removed guidance.
+- Checkpoints store quest-start progress and journal entries locally, not full scene state; pause gameplay and special-quest countdowns while the journal is open without resetting either.

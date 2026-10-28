@@ -40,7 +40,7 @@ export function usePointerLook(
 
     const onClick = (event: MouseEvent) => {
       if (window.matchMedia("(pointer: coarse)").matches) return;
-      if (event.target instanceof Element && event.target.closest("button, [role=dialog]")) return;
+      if (event.target instanceof Element && event.target.closest("button, input, [role=slider], [role=dialog]")) return;
       if (document.pointerLockElement !== el) void el.requestPointerLock?.()?.catch(() => {});
     };
     const onMove = (e: MouseEvent) => {

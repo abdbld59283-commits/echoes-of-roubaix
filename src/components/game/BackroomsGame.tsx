@@ -1,5 +1,5 @@
-import { ArrowRight, Volume2, VolumeX, Radio, Check, RotateCcw } from "lucide-react";
-import { EchoBackdrop, EchoLoader, EchoFeedback, StoryProgress, MobileControls, ShareJourney } from "./GameExperience";
+import { ArrowRight, Volume2, VolumeX, Radio, Check, RotateCcw, BookOpen, X } from "lucide-react";
+import { EchoBackdrop, EchoLoader, EchoFeedback, StoryProgress, MobileControls, ShareJourney, IntroNarration } from "./GameExperience";
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
@@ -14,7 +14,7 @@ import { ThreatMonitor } from "./ThreatMonitor";
 import { Campfires, type FireState } from "./Campfires";
 import { Roubaix } from "./Roubaix";
 import { Tundra } from "./Tundra";
-import { chime, playCatchSound, scream, startDrone, stopDrone, setAudioMuted, interactionSound } from "@/game/audio";
+import { chime, playCatchSound, scream, startDrone, stopDrone, setAudioMuted, setAudioVolume, setTension, startIntroAmbience, interactionSound } from "@/game/audio";
 import type { AttackView, Threat } from "@/game/threat";
 import { useKeyboard, usePointerLook } from "@/game/input";
 import { buildWorld, cellToWorld, spawnYaw } from "@/game/maze";
@@ -31,6 +31,9 @@ import type { Target } from "@/game/combat";
 import { EnemyCamp, GroundSupply, SurvivorTeam } from "./Expedition";
 import { supplyReward, silexCells, canLeaveTundra, applyBrigandHit, PLAYER_HIT_POINTS, SILEX_REQUIRED, TEAM_SIZE } from "@/game/expedition";
 import { Finale } from "./Finale";
+import { Atmosphere } from './Atmosphere';
+import { addClue } from '@/game/journal';
+import { loadCheckpoint, saveCheckpoint, clearCheckpoint, type Checkpoint } from '@/game/save';
 
 type Phase = "title" | "brief" | "intro" | "play" | "arrival" | "finale" | "cleared" | "gameover" | "victory";
 
@@ -40,6 +43,14 @@ export function BackroomsGame() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [phase, setPhase] = useState<Phase>("title");
   const [muted, setMuted] = useState(false);
+  const [volume, setVolume] = useState(0.8);
+  const [checkpoint, setCheckpoint] = useState<Checkpoint | null>(null);
+  const [clues, setClues] = useState<string[]>([]);
+  const [journalOpen, setJournalOpen] = useState(false);
+  const journalRef = useRef(false);
+  const onDiscover = useCallback((text: string) => setClues(current => addClue(current, text)), []);
+  useEffect(() => { setCheckpoint(loadCheckpoint(QUESTS.length)); }, []);
+  useEffect(() => { journalRef.current = journalOpen; }, [journalOpen]);
   const [pickupEcho, setPickupEcho] = useState(0);
   const [index, setIndex] = useState(0);
   const [lives, setLives] = useState(3);
@@ -91,8 +102,12 @@ export function BackroomsGame() {
 
   const quest = QUESTS[index] ?? QUESTS[0];
   if (!quest) throw new Error("Aucune quête disponible");
-  const playing = phase === "play";
+  const playing = phase === "play" && !journalOpen;
   const assistance = questAssistance(quest);
+  useEffect(() => {
+    if (phase === 'play' || phase === 'brief' && (index > 0 || checkpoint)) saveCheckpoint({ index, lives, clues });
+    if (phase === 'gameover' || phase === 'victory') { clearCheckpoint(); setCheckpoint(null); }
+  }, [phase, index, lives, clues]);
 
   const keys = useKeyboard();
   const { look } = usePointerLook(containerRef, playing && dialogue === null);
@@ -149,25 +164,29 @@ export function BackroomsGame() {
 
   // Ambience per world.
   useEffect(() => {
+    if (phase === 'intro') { startIntroAmbience(); return () => stopDrone(); }
     if (!playing) {
       stopDrone();
       return;
     }
-    startDrone(quest.world);
+    startDrone(quest.world, true);
     return () => stopDrone();
-  }, [playing, quest.world]);
+  }, [playing, phase, quest.world]);
+  useEffect(() => { setTension(chasing); }, [chasing]);
 
   // Countdown for special quests.
   useEffect(() => {
-    if (!playing || !quest.special || !quest.timeLimit) {
+    if (phase !== 'play' || !quest.special || !quest.timeLimit) {
       setTimeLeft(null);
       return;
     }
     setTimeLeft(quest.timeLimit);
-    const limit = quest.timeLimit;
-    const started = performance.now();
+    let left = quest.timeLimit;
+    let last = performance.now();
     const id = window.setInterval(() => {
-      const left = limit - (performance.now() - started) / 1000;
+      const now = performance.now();
+      if (!journalRef.current) left -= (now - last) / 1000;
+      last = now;
       setTimeLeft(left);
       if (left <= 0) {
         window.clearInterval(id);
@@ -176,7 +195,7 @@ export function BackroomsGame() {
     }, 200);
     return () => window.clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playing, quest, attempt]);
+  }, [phase, quest, attempt]);
 
   const loseLife = useCallback(
     (restart = false) => {
@@ -232,6 +251,7 @@ export function BackroomsGame() {
     if (attack.current) return false;
     if (quest.world === "tundra" && !canLeaveTundra(silex)) { setBlocked(true); return false; }
     chime(true);
+    setClues(current => addClue(current, quest.lore));
     document.exitPointerLock?.();
     if (quest.special) {
       setBonus(lives < MAX_LIVES);
@@ -255,6 +275,7 @@ export function BackroomsGame() {
   };
 
   const restartGame = () => {
+    clearCheckpoint(); setCheckpoint(null); setClues([]); setJournalOpen(false);
     setIndex(0);
     setLives(3);
     setAttempt((a) => a + 1);
@@ -275,9 +296,12 @@ export function BackroomsGame() {
     <div ref={containerRef} data-phase={phase} className="game-shell fixed inset-0 cursor-crosshair bg-game-dark" onClickCapture={() => interactionSound()}>
       {(phase === "title" || phase === "brief") && <EchoBackdrop />}
       <ControlButton variant="ghost" size="icon" className="audio-toggle" aria-label={muted ? "Activer le son" : "Couper le son"} title={muted ? "Activer le son" : "Couper le son"} aria-pressed={muted} onClick={() => { setAudioMuted(!muted); setMuted(v => !v); }}>{muted ? <VolumeX /> : <Volume2 />}</ControlButton>
+      <input className="volume-slider" type="range" aria-label="Volume du jeu" title={`Volume : ${Math.round(volume * 100)} %`} min="0" max="1" step="0.05" value={volume} onChange={e => { const next = Number(e.target.value); setVolume(next); setAudioVolume(next); }} />
+      {phase !== 'title' && <ControlButton variant="ghost" size="icon" className="wall-journal bg-game-dark text-hud" aria-label="Ouvrir le journal" title="Journal d’enquête" onClick={() => { if (attack.current) return; document.exitPointerLock?.(); keys.current.clear(); setJournalOpen(true); }}><BookOpen /></ControlButton>}
       {phase !== "title" && (
         <Canvas shadows dpr={[1, 1.5]} camera={{ fov: 76, near: 0.1, far: 360 }}>
           <Suspense fallback={null}>
+            {phase !== 'intro' && quest.world === 'backrooms' && <Atmosphere key={`traces-${index}-${attempt}`} world={world} index={index} playerPos={playerPos} active={playing && !attacked} onDiscover={onDiscover} />}
             {phase === 'intro' ? null : quest.world === "backrooms" ? (
               <Backrooms world={world} playerPos={playerPos} />
             ) : quest.world === "tundra" ? (
@@ -367,13 +391,14 @@ export function BackroomsGame() {
       </div>}
       {phase === "arrival" && <><div className="cinema-bar top-0" /><div className="cinema-bar bottom-0" /><div className="pointer-events-none fixed inset-x-4 bottom-[15%] z-40 text-center text-hud"><p className="font-display text-3xl">ROUBAIX · 2026</p><p className="mt-2 text-sm">Aëla : « Toutes ces maisons… et cette lumière. Nous sommes vraiment de l'autre côté. »</p></div><ControlButton className="fixed right-5 top-[12%] z-40" onClick={finishArrival}>Passer</ControlButton></>}
 
-      {phase === 'intro' && <><div className="cinema-bar top-0" /><div className="cinema-bar bottom-0" /><div className="intro-glitch pointer-events-none fixed inset-0 z-30" /><div className="pointer-events-none fixed inset-x-4 bottom-[15%] z-40 text-center text-hud"><p className="font-display text-3xl">LA RÉALITÉ SE DÉROBE</p></div><ControlButton className="fixed right-5 top-[12%] z-40" onClick={finishArrival}>Passer</ControlButton></>}
+      {phase === 'intro' && <><div className="cinema-bar top-0" /><div className="cinema-bar bottom-0" /><div className="intro-glitch pointer-events-none fixed inset-0 z-30" /><div className="pointer-events-none fixed inset-x-4 bottom-[15%] z-40 text-center text-hud"><p className="font-display text-3xl">LA RÉALITÉ SE DÉROBE</p><IntroNarration /></div><ControlButton className="fixed right-5 top-[12%] z-40" onClick={finishArrival}>Passer</ControlButton></>}
       {phase === "title" && (
         <Panel title>
           <div className="echo-eyebrow"><Radio size={14} /> SIGNAL RETROUVÉ · ROUBAIX</div>
           <h1 className="echo-title" data-text="ROUBAIX">ROUBAIX<br /><span className="echo-subtitle">Les Ombres du Passé</span></h1>
           <p className="echo-tagline">La réalité n’a pas dit son dernier mot.</p>
-          <Button onClick={() => setPhase("brief")}>Commencer l’enquête <ArrowRight /></Button>
+          <Button onClick={() => { clearCheckpoint(); setCheckpoint(null); setClues([]); setPhase("brief"); }}>Commencer l’enquête <ArrowRight /></Button>
+          {checkpoint && <Button onClick={() => { setIndex(checkpoint.index); setLives(checkpoint.lives); setClues(checkpoint.clues); setPhase('brief'); }}><RotateCcw /> Reprendre · Quête {checkpoint.index + 1}</Button>}
           <div className="echo-title-stats"><span><b>03</b> MONDES</span><span><b>10</b> QUÊTES</span><span><b>19</b> SURVIVANTS</span></div>
           <p className="echo-title-footer">BACKROOMS · −10 000 · ROUBAIX 2026</p>
         </Panel>
@@ -438,6 +463,7 @@ export function BackroomsGame() {
           <Button onClick={restartGame}><RotateCcw /> Rejouer</Button>
         </Panel>
       )}
+      {journalOpen && <section className="journal-panel" role="dialog" aria-modal="true" aria-label="Journal d’enquête" onClick={e => e.stopPropagation()}><ControlButton autoFocus variant="ghost" size="icon" aria-label="Fermer le journal" onClick={() => setJournalOpen(false)}><X /></ControlButton><h2>Journal d’enquête</h2>{clues.length ? <ol>{clues.map(clue => <li key={clue}>{clue}</li>)}</ol> : <p className="text-sm text-hud/60">Aucune trace relevée.</p>}</section>}
     </div>
   );
 }
