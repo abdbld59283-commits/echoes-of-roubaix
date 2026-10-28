@@ -6,7 +6,7 @@ export function parseCheckpoint(raw: string | null, questCount: number): Checkpo
   if (!raw) return null;
   try {
     const v = JSON.parse(raw) as Partial<Checkpoint>;
-    if (typeof v.index !== "number" || typeof v.lives !== "number") return null;
+    if (typeof v.index !== "number" || typeof v.lives !== "number" || !Number.isInteger(v.index) || !Number.isInteger(v.lives)) return null;
     if (v.index < 0 || v.index >= questCount || v.lives < 1) return null;
     return { index: Math.floor(v.index), lives: Math.floor(v.lives), clues: Array.isArray(v.clues) ? v.clues.filter((c): c is string => typeof c === "string") : [] };
   } catch {
