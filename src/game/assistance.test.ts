@@ -36,7 +36,9 @@ describe('requested quest and companion rules', () => {
     for (const cell of route) expect(world.grid[cell.z * world.size + cell.x]).toBe(0);
   });
   it('new games start with the Backrooms cinematic', () => {
-    expect(openingPhase(0, 'backrooms')).toBe('intro');
+    expect(openingPhase(0, 'backrooms')).toBe('play');
+    expect(openingPhase(3, 'tundra')).toBe('rift');
+    expect(openingPhase(4, 'tundra')).toBe('play');
     expect(openingPhase(1, 'backrooms')).toBe('play');
   });
   it('entering Roubaix runs the arrival before gameplay', () => {

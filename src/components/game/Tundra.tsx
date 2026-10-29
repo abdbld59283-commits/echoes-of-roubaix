@@ -40,6 +40,9 @@ function Blizzard({ playerPos, storm }: { playerPos: THREE.Vector3; storm: boole
       arr[i * 3] = (arr[i * 3] ?? 0) + wind * delta;
       if ((arr[i * 3 + 1] ?? 0) < 0) arr[i * 3 + 1] = 18;
       if ((arr[i * 3] ?? 0) > 30) arr[i * 3] = -30;
+      // Keep a clear bubble around the camera so flakes never smear across the view.
+      const x = arr[i * 3] ?? 0, z = arr[i * 3 + 2] ?? 0;
+      if (x * x + z * z < 12 && (arr[i * 3 + 1] ?? 0) < 3.5) arr[i * 3 + 1] = 18;
     }
     attr.needsUpdate = true;
     p.position.set(playerPos.x, 0, playerPos.z);
@@ -53,9 +56,9 @@ function Blizzard({ playerPos, storm }: { playerPos: THREE.Vector3; storm: boole
       </bufferGeometry>
       <pointsMaterial
         color={palette.snow}
-        size={storm ? 0.16 : 0.1}
+        size={storm ? 0.07 : 0.05}
         transparent
-        opacity={storm ? 0.95 : 0.75}
+        opacity={storm ? 0.8 : 0.65}
         sizeAttenuation
         depthWrite={false}
       />

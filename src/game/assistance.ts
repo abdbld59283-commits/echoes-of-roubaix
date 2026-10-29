@@ -1,3 +1,4 @@
+import { QUESTS } from './quests';
 import type { Quest } from './quests';
 import type { World } from './maze';
 import { routeToGoal, worldToCell } from './maze';
@@ -24,7 +25,8 @@ export function guidanceRoute(world: World, player: Resource, resource: Resource
   return routeToGoal(world, { x: a.cx, z: a.cz }, { x: b.cx, z: b.cz });
 }
 export function openingPhase(index: number, world: Quest['world']) {
-  return index === 0 ? 'intro' : world === 'roubaix' ? 'arrival' : 'play';
+  if (world === 'tundra' && QUESTS[index - 1]?.world === 'backrooms') return 'rift';
+  return world === 'roubaix' ? 'arrival' : 'play';
 }
 
 export type TeamMode = 'autonomous' | 'follow' | 'hold';
