@@ -15,7 +15,7 @@ function Car({ color }: { color: string }) {
   return <group>
     <mesh position={[0, 0.55, 0]} castShadow><boxGeometry args={[1.8, 0.6, 4.2]} /><meshStandardMaterial color={color} metalness={0.6} roughness={0.35} /></mesh>
     <mesh position={[0, 1.1, -0.2]} castShadow><boxGeometry args={[1.6, 0.55, 2.2]} /><meshStandardMaterial color="#1c2228" metalness={0.8} roughness={0.15} /></mesh>
-    {[[-0.85, 1.35], [0.85, 1.35], [-0.85, -1.35], [0.85, -1.35]].map(([x, z], i) => <mesh key={i} position={[x, 0.32, z]} rotation-z={Math.PI / 2}><cylinderGeometry args={[0.32, 0.32, 0.25, 14]} /><meshStandardMaterial color="#111" roughness={0.9} /></mesh>)}
+    {([[-0.85, 1.35], [0.85, 1.35], [-0.85, -1.35], [0.85, -1.35]] as const).map(([x, z], i) => <mesh key={i} position={[x, 0.32, z]} rotation-z={Math.PI / 2}><cylinderGeometry args={[0.32, 0.32, 0.25, 14]} /><meshStandardMaterial color="#111" roughness={0.9} /></mesh>)}
   </group>;
 }
 
