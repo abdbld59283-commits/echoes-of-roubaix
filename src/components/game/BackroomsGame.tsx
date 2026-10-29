@@ -379,7 +379,6 @@ export function BackroomsGame() {
       {playing && (
         <HUD guidance={assistance.objective} quest={quest} index={index} lives={lives} distance={distance} timeLeft={timeLeft} ammo={ammoView} kills={kills} reinforced={reinforced} mission={mission !== null ? `${SURVIVORS[mission]?.mission} · ${SURVIVORS[mission]?.kind === "hunt" ? Math.min(kills, 2) : Math.min(collected, 2)}/2${rewarded ? " · accomplie" : ""}` : null} />
       )}
-      {playing && index === 1 && <PathGuide world={world} />}
             {playing && assistance.flint && silex < SILEX_REQUIRED && flintDirection && <div className="flint-compass pointer-events-none z-30">{flintDirection}</div>}
       {playing && quest.world === "tundra" && <>
         <div className="expedition-hud"><p>ÉQUIPE · {team} SURVIVANTS · BRIGANDS {brigandsKilled}/10</p><p className="text-mustard">SILEX {Math.min(silex, SILEX_REQUIRED)}/{SILEX_REQUIRED} · SANTÉ {"■".repeat(hp)}{"□".repeat(PLAYER_HIT_POINTS - hp)}</p><div className="mt-2 flex flex-wrap gap-1" role="group" aria-label="Ordres de l’équipe">{(['autonomous', 'follow', 'hold'] as const).map(mode => <ControlButton key={mode} variant="ghost" size="sm" aria-pressed={teamMode === mode} className="border border-hud/30 bg-game-dark/70 text-hud aria-pressed:bg-hud/20" onClick={e => { e.stopPropagation(); setTeamMode(mode); }}>{mode === 'autonomous' ? 'Autonomes' : mode === 'follow' ? 'Me suivre' : 'Tenir la position'}</ControlButton>)}</div></div>
